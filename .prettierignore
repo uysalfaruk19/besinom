@@ -1,0 +1,6 @@
+# Eski tek satırlık dosyalar bir seferde biçimlendirilirse inceleme imkânsızlaşır; dosya dosya, ayrı PR'larla açılacak.
+www/besinai-js/
+www/besinai-data/
+www/index.html
+ios/
+package-lock.json

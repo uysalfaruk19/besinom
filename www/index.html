@@ -436,13 +436,13 @@
       <div id="labsInviteChevron" style="font-size:13px;color:var(--teal);font-weight:700;margin-top:8px">Değerleri gir ▾</div>
     </button>
     <div id="labsBlock" hidden>
-    <div id="ocrCard" style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:14px;padding:14px 16px;margin-bottom:18px">
-      <div style="font-size:13.5px;font-weight:700;color:#0f766e;margin-bottom:4px">📷 Tahlil fotoğrafından otomatik doldur <span style="font-size:10.5px;background:#fde68a;color:#92400e;padding:1px 7px;border-radius:999px;font-weight:800;vertical-align:middle">BETA</span></div>
-      <div style="font-size:12.5px;color:#475569;margin-bottom:10px">Tahlil sonucunun net bir fotoğrafını/ekran görüntüsünü seç; değerleri okuyup buraya taşıyalım. <b>Görselin cihazından çıkmaz.</b> İlk kullanımda internet + birkaç saniye gerekir; <b>çalışmazsa değerleri aşağıdan elle girebilirsin.</b> OCR hatalı okuyabilir — aktarmadan önce her değeri kontrol et.</div>
-      <input type="file" id="ocrFile" accept="image/*" style="display:none">
-      <button type="button" class="btn go" id="ocrBtn" style="padding:9px 15px;font-size:13.5px">📷 Fotoğraf seç</button>
-      <span id="ocrStatus" class="navnote" style="margin-left:8px"></span>
-      <div id="ocrReview" style="margin-top:12px"></div>
+    <div id="labPasteCard" style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:14px;padding:14px 16px;margin-bottom:18px">
+      <div style="font-size:13.5px;font-weight:700;color:#0f766e;margin-bottom:4px">📋 Tahlil sonucunu yapıştırarak doldur</div>
+      <div style="font-size:12.5px;color:#475569;margin-bottom:10px">e-Nabız ya da laboratuvar PDF'indeki sonuç satırlarını kopyalayıp buraya yapıştır; değerleri aşağıdaki kutulara taşıyalım. <b>Metin cihazından çıkmaz.</b> Taşınan değerleri mutlaka kontrol et.</div>
+      <label for="labPaste" class="sr-only">Tahlil sonucu metni</label>
+      <textarea id="labPaste" rows="4" style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;font-size:13.5px" placeholder="Örn: Ferritin 12 ng/mL&#10;Vitamin B12 210 pg/mL&#10;25-OH Vitamin D 14,5 ng/mL"></textarea>
+      <button type="button" class="btn go" id="labPasteGo" style="padding:9px 15px;font-size:13.5px;margin-top:8px">Değerleri doldur</button>
+      <div id="labPasteMsg" class="navnote" role="status" aria-live="polite" style="margin-top:8px"></div>
     </div>
     <div class="row" id="labs"></div>
     <details id="labsIleriWrap" style="margin-top:6px"><summary style="cursor:pointer;padding:10px 2px;font-weight:800;font-size:12px;letter-spacing:.05em;color:#0e7490" aria-label="Daha fazla tahlil değeri — ileri ve ek parametreler, varsa gir">🔬 DAHA FAZLA TAHLİL DEĞERİ</summary><div class="row" id="labs-ileri" style="margin-top:10px"></div></details>

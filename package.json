@@ -10,7 +10,8 @@
     "test": "node --test tests/*.test.mjs",
     "ios:sync": "cap sync ios",
     "ios:open": "cap open ios",
-    "assets": "capacitor-assets generate --ios"
+    "assets": "capacitor-assets generate --ios",
+    "bicim": "npx --yes prettier@3.3.3 --check ."
   },
   "dependencies": {
     "@capacitor/core": "^7.0.0",

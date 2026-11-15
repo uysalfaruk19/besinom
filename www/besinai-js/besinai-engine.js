@@ -355,6 +355,68 @@ function renderSpices(matches){
   h+=`</div>`;
   return h;
 }
+// ===== Tahlil metninden değer okuma (cihazda; ağ yok) =====
+// e-Nabız / laboratuvar PDF'inden kopyalanan metni satır satır okur: her satırda bir tahlil adı + hemen ardından gelen ilk sayı.
+// Sıra önemlidir: özel adlar genel adlardan önce (HbA1c→hemoglobin, LDL/HDL→kolesterol, ferritin/TIBC/TSAT→demir, HOMA→insülin).
+const LAB_ALIASES=[
+  ['hba1c',/hba1c|hb a1c|glike hemoglobin|glikozile hemoglobin|\ba1c\b/],
+  ['homair',/homa/],
+  ['insulin',/insülin|insulin/],
+  ['ferritin',/ferritin/],
+  ['tibc',/tibc|demir bağlama/],
+  ['tsat',/transferrin satürasyon|transferrin saturasyon|\btsat\b/],
+  ['serum_demir',/serum demir|demir \(fe\)|^\s*demir\b|^\s*fe\b|\biron\b/],
+  ['hemoglobin',/hemoglobin|\bhgb\b|^\s*hb\b/],
+  ['mcv',/\bmcv\b/],
+  ['rdw',/\brdw/],
+  ['b12',/b12|kobalamin/],
+  ['b6_plp',/\bb6\b|piridoksal|\bplp\b/],
+  ['dvit',/d vitamini|vitamin d|25 ?\(?oh\)? ?d|25-hidroksi/],
+  ['folat',/folat|folik asit|folate/],
+  ['cvit',/c vitamini|vitamin c|askorbik/],
+  ['magnezyum',/magnezyum|magnesium/],
+  ['cinko',/çinko|zinc/],
+  ['bakir',/bakir|copper/],
+  ['selenyum',/selenyum|selenium/],
+  ['kalsiyum',/kalsiyum|calcium/],
+  ['potasyum',/potasyum|potassium/],
+  ['fosfor',/fosfor|fosfat|phosph/],
+  ['albumin',/albümin|albumin/],
+  ['st4',/serbest t4|\bst4\b|\bft4\b|free t4/],
+  ['st3',/serbest t3|\bst3\b|\bft3\b|free t3/],
+  ['tsh',/\btsh\b/],
+  ['pth',/\bpth\b|parathormon/],
+  ['glukoz',/açlik kan şekeri|glukoz|glikoz|glucose/],
+  ['ldl',/\bldl/],
+  ['hdl',/\bhdl/],
+  ['trigliserit',/trigliserit|trigliserid|triglycerid/],
+  ['kolesterol',/kolesterol|cholesterol/],
+  ['crp',/\bcrp\b|c-reaktif|c reaktif/],
+  ['homosistein',/homosistein|homocystein/],
+  ['uricacid',/ürik asit|uric acid/],
+  ['alt',/\balt\b|\bsgpt\b|alanin amino/],
+  ['omega3index',/omega-?3 indeks|omega-?3 index/],
+  ['antittg',/ttg|transglutaminaz/],
+];
+// Adın içindeki sayılar değer sanılmasın (25-OH, B12, A1c, T4, Omega-3)
+const LAB_NAME_NUM=/25[- ]?\(?oh\)?|25-hidroksi|\bb12\b|\bb6\b|a1c|\bt[34]\b|omega-?3|\b[sf]t[34]\b/g;
+// Sık görülen farklı birimler → uygulamanın birimi
+const LAB_UNIT_CONV={dvit:[[/nmol\/l/,v=>v/2.496]],b12:[[/pmol\/l/,v=>v*1.355]],glukoz:[[/mmol\/l/,v=>v*18.016]],hemoglobin:[[/g\/l\b/,v=>v/10]],folat:[[/nmol\/l/,v=>v/2.266]]};
+function parseLabReport(text){
+  const out={},seen=new Set();
+  String(text||'').split(/\r?\n|;/).forEach(raw=>{
+    // Büyük harfli raporlarda Türkçe küçültme I→ı yapar ("TIBC"→"tıbc", "VITAMIN"→"vıtamın"): ı→i ile tek biçime indirilir.
+    const line=raw.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/\s+/g,' ');if(!line.trim())return;
+    for(const [key,re] of LAB_ALIASES){
+      if(seen.has(key))continue;const m=line.match(re);if(!m)continue;
+      let rest=line.slice(m.index+m[0].length).replace(LAB_NAME_NUM,' ');
+      const n=rest.match(/(\d+(?:[.,]\d+)?)/);if(!n)break;
+      let v=parseFloat(n[1].replace(',','.'));if(!isFinite(v))break;
+      const after=rest.slice(n.index+n[0].length,n.index+n[0].length+14);
+      (LAB_UNIT_CONV[key]||[]).forEach(([ure,f])=>{if(ure.test(after))v=f(v);});
+      out[key]=Math.round(v*100)/100;seen.add(key);break;}
+  });
+  return out;}
 // Proaktif tahlil tazeleme (Faz 5): cihazda saklı tahlil geçmişi bayatladıysa nazik "tekrar ölç" notu.
 // BesinTemporal.staleLabs kullanır; storage kapalıysa/geçmiş yoksa BOŞ döner (additive, güvenli).
 function staleLabReminder(){
@@ -481,6 +543,11 @@ function renderResults(R){
   // 9) Semptom kartları
   if(selSymp.length){h+=`<div class="sech">🔎 Seçtiğin semptomların olası nedenleri</div>`;
     selSymp.forEach(s=>{h+=`<div class="symprow"><div class="h">${s[0]} ${s[4]?'<span class="rf">eşlik eden bulgulara dikkat</span>':''}</div><div class="b"><b>Beslenme açısından:</b> ${s[1].length?s[1].map(n=>NUTR[n]?NUTR[n].ad:n).join(', ')+' ile ilişkili olabilir.':'doğrudan bir besinle ilişkilendirilmez.'}<br><b>Diğer olası nedenler:</b> ${s[2]}.${s[4]?'<br><b>Acil durum:</b> Göğüs ağrısı, belirgin nefes darlığı, bayılma veya şiddetli çarpıntı eşlik ederse acil yardım al.':''}</div><div class="cite">Kaynak: ${cite(s[3])}</div></div>`});}
+  // 9b) Netleştirmek için ölçtürülebilecek tahliller: öncelik belirti/alışkanlıktan geldiyse ilgili tahlil girilmemiş olabilir (BesinDifferential).
+  try{if(typeof BesinDifferential!=='undefined'&&(primary||[]).length){
+    const given=LABS.filter(L=>{const el=$(`[data-lab="${L.key}"]`);return el&&String(el.value||'').trim()!=='';}).map(L=>L.key);
+    const rows=[];(primary||[]).slice(0,4).forEach(n=>{const d=BesinDifferential.forNutrient(n,{labKeys:given});if(d.missing.length)rows.push(`<li><b>${esc(NUTR[n]?NUTR[n].ad:n)}</b>: ${d.missing.map(m=>esc(m.label)).join(', ')}</li>`);});
+    if(rows.length)h+=`<div class="sech">🧪 Netleştirmek için ölçtürebileceğin tahliller</div><div style="font-size:13px;color:#475569;margin-bottom:6px">Bu öncelikler tahlil olmadan, belirti ve alışkanlıklardan çıktı. Aşağıdaki tahliller durumu kesinleştirir; isteyip istemeyeceğine hekimin karar verir.</div><ul style="margin:0 0 4px 18px;font-size:13.5px;line-height:1.7;color:#334155">${rows.join('')}</ul>`;}}catch(e){}
   // 10) Ne zaman hekime
   const w2d=when2doctor(R);
   if(w2d.length)h+=`<div class="sech">🩺 Ne zaman hekime danışmalısın</div><ul style="margin:0 0 4px 18px;font-size:13.5px;line-height:1.7;color:#334155">${w2d.map(x=>`<li>${x}</li>`).join('')}</ul>`;
