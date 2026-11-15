@@ -587,6 +587,18 @@
       <label class="storage-choice"><input type="checkbox" id="remPrivateToggle"><span><b>Bildirimde yemek adını gösterme</b><small>Kilit ekranında yalnız "Öğle yemeği vakti" gibi genel bir metin görünür; menün başkalarına görünmez.</small></span></label>
       <div id="reminderTimes" style="display:none;margin:2px 0 10px 4px;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px;color:#475569"></div>
       <div class="storage-choice" style="gap:8px;flex-wrap:wrap"><span style="flex:1 1 100%"><b>Verilerim (taşınabilirlik)</b><small>Tüm verini tek dosyada indir, başka cihaza/sürüme geri yükle. Veri yine yalnız senin cihazında.</small></span><button type="button" class="btn ghost" id="dataExport" style="font-size:12.5px;padding:6px 12px">⬇️ Verilerimi indir</button><button type="button" class="btn ghost" id="dataImport" style="font-size:12.5px;padding:6px 12px">⬆️ Geri yükle</button><input type="file" id="dataImportFile" accept="application/json,.json" style="display:none"></div>
+      <div class="storage-choice" style="gap:8px;flex-wrap:wrap"><span style="flex:1 1 100%"><b>Tüm verilerimi sil</b><small>Bu cihazdaki profil, tahlil geçmişi, takip, ayar ve hatırlatıcıların hepsi silinir. Geri alınamaz.</small></span><button type="button" class="btn ghost" id="dataWipe" style="font-size:12.5px;padding:6px 12px;color:#b91c1c;border-color:#fecaca">🗑️ Tümünü sil</button></div>
+      <details class="storage-choice" id="privacyPolicy" style="display:block"><summary style="cursor:pointer;font-weight:700">📄 Gizlilik politikası</summary>
+        <div style="font-size:12.5px;color:#475569;line-height:1.6;margin-top:8px">
+          <p><b>Kısaca:</b> Besinom'da hesap, reklam ve izleme yoktur. Girdiğin tahlil, belirti, ilaç, durum ve alerji bilgileri yalnız bu cihazda işlenir; sunucuya gönderilmez.</p>
+          <p><b>Saklama:</b> Varsayılan olarak hiçbir şey kalıcı saklanmaz. "Profilimi bu cihazda sakla" seçilirse veriler yalnız bu cihazın tarayıcı/uygulama belleğinde tutulur. "Tümünü sil" ile ya da uygulamayı silerek hepsini kaldırabilirsin. iPhone'da bu bellek, açıksa iCloud cihaz yedeğine dahil olabilir; yedek bize ulaşmaz.</p>
+          <p><b>Paylaşım:</b> Menüyü paylaşırsan bağlantıda yalnız tarif listesi ve kalori hedefi bulunur; eksikliklerin (hedef besinler) eklenmez. Paylaşmayı sen başlatırsın.</p>
+          <p><b>Bildirimler:</b> Hatırlatıcılar cihazında üretilir, dışarıya veri gitmez.</p>
+          <p><b>Teslimat talebi (web):</b> Talep formunda yazdığın ad, telefon, ilçe/adres, kişi ve gün sayısı talebini yanıtlamak için hizmet sağlayıcıya iletilir. Alerjilerini eklemeyi seçersen yalnız alerjen adları açık rızanla gönderilir. Ayrıntı ve KVKK haklarının kullanımı için <a href="https://yemekhaneci.com.tr/yasal/aydinlatma-metni" target="_blank" rel="noopener">Aydınlatma Metni</a>.</p>
+          <p><b>Yaş:</b> Besinom 18 yaş ve üzeri içindir.</p>
+          <p style="font-size:11.5px;color:#64748b">Sürüm: 2026-11. Veri sorumlusu ve başvuru bilgileri Aydınlatma Metni'nde yer alır.</p>
+        </div>
+      </details>
       <label class="storage-choice" style="display:none" data-v1-kapali="capacitor-health eklenince ac"><input type="checkbox" id="healthToggle"><span><b>Apple Sağlık / Health Connect'ten veri al</b><small>İzin verirsen kilo, adım ve aktif kaloriyi cihazdan okuyup takibine ekler (iOS/Android uygulamasında çalışır; veri sunucuya gönderilmez).</small></span></label>
       </div>
       </details>

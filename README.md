@@ -59,6 +59,25 @@ Kendi kopyanızı yayınlıyorsanız bu bağlantıları kendi adresinizle deği�
 
 Dosya adlarındaki `besinai` öneki projenin ilk adından kalmıştır; ürünün adı Besinom'dur.
 
+## Android derlemesi
+
+Android Studio gerekir.
+
+```bash
+npm install
+npx cap sync android
+npx cap open android
+```
+
+İmzalama anahtarını depoya koymayın. Play Store yayını için adımlar [docs/yayin-adimlari.md](docs/yayin-adimlari.md) dosyasında.
+
+## Belgeler
+
+- [Gizlilik politikası taslağı](docs/gizlilik-politikasi.md)
+- [Teslimat talebi aydınlatma ve açık rıza metni taslağı](docs/aydinlatma-metni-teslimat.md)
+- [App Store metinleri ve gizlilik etiketi](docs/app-store.md)
+- [Depo dışında yapılacaklar](docs/yayin-adimlari.md)
+
 ## iOS derlemesi
 
 Mac ve Xcode gerekir.
@@ -77,7 +96,6 @@ Hata bildirimi, yeni tarif, kaynak güncellemesi, çeviri ve kod katkısı kabul
 
 Başlamak için uygun bilinen eksikler:
 
-- Android projesi bu depoda yok.
 - Arayüz yalnız Türkçe.
 
 ## Lisans ve marka

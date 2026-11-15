@@ -58,6 +58,17 @@ else for (const m of swListe.matchAll(/'([^']+)'/g)) if (!fs.existsSync(path.joi
 // index.html'deki her yerel betik ve stil çevrimdışı listede de olmalı
 for (const b of new Set(basvurular)) if (/\.(js|css)$/.test(b) && swListe && !swListe.includes(`'${b}'`)) hata(`besinai-sw.js: listede eksik: ${b}`);
 
+// 6) Uygulama paketi kuralı (Apple 5.1.1/5.1.2): sağlık verisini işleyen modüllerde ağ çağrısı yok.
+// Yalnız iki bilinen istisna: tarif derlemi (yerel dosya) ve web'deki teslimat formu (/api/v1/besinai-lead).
+const AG_IZINLI = [/fetch\('\/besinai-data\/tarifler\.txt/, /fetch\('\/api\/v1\/besinai-lead'/];
+for (const f of jsler) {
+  const kod = fs.readFileSync(path.join(jsDir, f), 'utf8');
+  for (const m of kod.matchAll(/\b(fetch|XMLHttpRequest|sendBeacon|WebSocket)\s*\(/g)) {
+    const satir = kod.slice(m.index, m.index + 60);
+    if (!AG_IZINLI.some((re) => re.test(satir))) hata(`${f}: izin listesinde olmayan ağ çağrısı: ${satir.split('\n')[0]}`);
+  }
+}
+
 console.log(`${jsler.length} JS dosyası, ${tarifler.length} tarif, ${new Set(basvurular).size} yerel başvuru denetlendi.`);
 if (hatalar.length) { console.error(`\n${hatalar.length} hata:\n- ` + hatalar.join('\n- ')); process.exit(1); }
 console.log('Temiz.');
