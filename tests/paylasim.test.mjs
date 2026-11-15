@@ -63,3 +63,13 @@ test('çekirdek modül eval kullanmaz ve sayfada içerik güvenlik politikası v
   const html = fs.readFileSync(path.join(KOK, 'index.html'), 'utf8');
   assert.match(html, /Content-Security-Policy[^>]*connect-src 'self' https:\/\/yemekhaneci\.com\.tr/);
 });
+
+test('teslimat talebine alerji yalnız açık rızayla ve bilinen anahtarlarla eklenir', () => {
+  const ctx = yukle();
+  const V = ctx.BesinV4;
+  const temel = { ad: 'A', telefon: '05001112233', kvkk_onay: true };
+  assert.equal(V.leadPayload({ ...temel, alerjenler: ['gluten'] }).alerjenler, undefined);
+  const p = V.leadPayload({ ...temel, alerjenler: ['gluten', '<script>'], alerji_acik_riza: true });
+  assert.deepEqual([...p.alerjenler], ['gluten']);
+  assert.equal(p.alerji_acik_riza, true);
+});

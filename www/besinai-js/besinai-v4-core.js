@@ -12,7 +12,9 @@
   }
   function dailyCalories(day){return Math.round((day||[]).reduce((sum,item)=>sum+(Number(item[1]&&item[1].kcal)||0),0));}
   function withinEnergy(day,target,tolerance=.15){if(!target)return true;return Math.abs(dailyCalories(day)-target)/target<=tolerance;}
-  function leadPayload(input){return{ad:String(input.ad||'').trim(),telefon:String(input.telefon||'').replace(/[^0-9+]/g,''),ilce_adres:String(input.ilce_adres||'').trim(),kisi_sayisi:Math.max(1,parseInt(input.kisi_sayisi,10)||1),gun_sayisi:Math.max(1,parseInt(input.gun_sayisi,10)||1),kvkk_onay:!!input.kvkk_onay};}
+  function leadPayload(input){return{ad:String(input.ad||'').trim(),telefon:String(input.telefon||'').replace(/[^0-9+]/g,''),ilce_adres:String(input.ilce_adres||'').trim(),kisi_sayisi:Math.max(1,parseInt(input.kisi_sayisi,10)||1),gun_sayisi:Math.max(1,parseInt(input.gun_sayisi,10)||1),kvkk_onay:!!input.kvkk_onay,...leadAllergy(input)};}
+  // Alerji yalnız açık rızayla ve bilinen alerjen anahtarlarıyla gider (serbest metin değil)
+  function leadAllergy(input){const ok=new Set(['fistik','kuruyemis','yumurta','sut','balik','kabuklu','yumusakca','gluten','susam','soya','hardal','kereviz','lupin','sulfit']);const a=(Array.isArray(input.alerjenler)?input.alerjenler:[]).filter(x=>ok.has(x));return (input.alerji_acik_riza&&a.length)?{alerjenler:a,alerji_acik_riza:true}:{};}
   // Dosya kaydetme: tarayıcıda <a download>; iOS uygulamasında (WKWebView) bu yöntem çalışmadığı için
   // Capacitor Filesystem ile önbelleğe yazıp iOS paylaşım sayfasını açar (Dosyalar'a kaydet, AirDrop, e-posta).
   async function saveTextFile(name,mime,text){

@@ -374,6 +374,15 @@ window.skinGoal=window.skinGoal||'';
 // #18 veri export/import
 {const ex=$('#dataExport');if(ex)ex.onclick=()=>{if(!exportData())toast('Dışa aktarılacak veri bulunamadı.','warn');else toast('Verilerin indirildi.','ok');};}
 {const im=$('#dataImport'),imf=$('#dataImportFile');if(im&&imf){im.onclick=()=>imf.click();imf.onchange=()=>{const f=imf.files&&imf.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{if(importData(String(rd.result))){toast('Verilerin geri yüklendi.','ok');setTimeout(()=>location.reload(),700);}else{toast('Dosya okunamadı ya da geçersiz Besinom yedeği.','warn');}imf.value='';};rd.readAsText(f);};}}
+// Tüm verilerimi sil: besinai_ ile başlayan her anahtar + bekleyen bildirimler (iki adımlı onay, tarayıcı diyaloğu kullanmadan)
+{const w=$('#dataWipe');if(w){let armed=false,tm=null;w.onclick=async()=>{
+  if(!armed){armed=true;w.textContent='Emin misin? Tekrar dokun';clearTimeout(tm);tm=setTimeout(()=>{armed=false;w.textContent='🗑️ Tümünü sil';},5000);return;}
+  clearTimeout(tm);armed=false;
+  try{if(typeof scheduleReminders==='function')await scheduleReminders(false);}catch(e){}
+  try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('besinai_')===0)ks.push(k);}ks.forEach(k=>localStorage.removeItem(k));}catch(e){}
+  try{sessionStorage.clear();}catch(e){}
+  if(typeof toast==='function')toast('Bu cihazdaki tüm Besinom verileri silindi.','ok');
+  setTimeout(()=>{try{location.hash='';location.reload();}catch(e){}},900);};}}
 {const pt=$('#remPrivateToggle');if(pt){let on=false;try{on=localStorage.getItem('besinai_rem_private')==='1';}catch(e){}pt.checked=on;pt.onchange=()=>{try{localStorage.setItem('besinai_rem_private',pt.checked?'1':'0');}catch(e){}if(typeof refreshRemindersIfOn==='function')refreshRemindersIfOn();};}}
 {const ht=$('#healthToggle');if(ht){let on=false;try{on=localStorage.getItem('besinai_health')==='1';}catch(e){}ht.checked=on;ht.onchange=async()=>{try{localStorage.setItem('besinai_health',ht.checked?'1':'0');}catch(e){}if(ht.checked&&typeof syncHealth==='function'){try{await syncHealth();}catch(e){}}};}}
 try{if(localStorage.getItem('besinai_health')==='1'&&typeof syncHealth==='function')syncHealth();}catch(e){}
@@ -477,3 +486,12 @@ function setFontScale(v){applyFontScale(v);try{localStorage.setItem(FS_KEY,v);}c
   document.querySelectorAll('.chips .chip').forEach(c=>{if(!c.hasAttribute('role'))c.setAttribute('role','button');if(!c.hasAttribute('tabindex'))c.setAttribute('tabindex','0');sync(c);});
   if(typeof MutationObserver!=='undefined')new MutationObserver(ms=>ms.forEach(m=>{const t=m.target;if(t&&t.classList&&t.classList.contains('chip')&&t.getAttribute('role')==='button')sync(t);})).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
 }catch(e){}})();
+// Uygulamada (Capacitor) sitedeki sayfalar uygulama içi görünümde değil, Safari'de açılır:
+// uygulama çevrimdışı ve kendi içinde kalır; App Store 4.2 ("web sitesi sarmalayıcı") riskini azaltır.
+// window.open(..., '_blank') Capacitor'da sistem tarayıcısını açar (teslimat düğmesi de aynı yolu kullanıyor).
+document.addEventListener('click',function(e){try{
+  if(!window.Capacitor||e.defaultPrevented)return;
+  const a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;
+  const href=a.getAttribute('href')||'';if(!/^https?:\/\//i.test(href))return;
+  e.preventDefault();window.open(href,'_blank');
+}catch(err){}});

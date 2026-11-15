@@ -901,6 +901,8 @@ function buildReport(){
 }
 // Teslimat lead — "kandan tabağa": analizden gerçek yemek teslimatına köprü (FREE, herkes)
 const BESINAI_WA=(document.body.dataset.besinaiWa||'').replace(/\D/g,'');
+// Alerji anahtarlarını arayüzdeki çip adlarıyla okunur hale getirir (teslimat talebi ve WhatsApp metni için)
+function allergyLabels(keys){return (keys||[]).map(k=>{const c=document.querySelector('#allergies .chip[data-al="'+k+'"]');return c?c.textContent.trim():k;});}
 function openDeliveryModal(){
   // iOS uygulamasında sunucu/CSRF yok: form gösterip bilgileri atmak yerine doğrudan sitedeki formu aç (kullanıcı iki kez doldurmasın).
   if(window.Capacitor){window.open('https://yemekhaneci.com.tr/besinai','_blank');return;}
@@ -912,6 +914,7 @@ function openDeliveryModal(){
     <label class="f"><span>Telefon</span><input id="dvPhone" placeholder="05.." inputmode="tel"></label>
     <label class="f"><span>İlçe / Adres (kısaca)</span><input id="dvAddr" placeholder="Gebze / ..."></label>
     <div class="row2"><label class="f"><span>Kaç kişilik</span><input id="dvPpl" type="number" min="1" value="1"></label><label class="f"><span>Kaç günlük</span><input id="dvDays" type="number" min="1" value="${ppl}"></label></div>
+    ${(window.allergies&&window.allergies.size)?`<label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#475569;margin:6px 0 2px;cursor:pointer"><input type="checkbox" id="dvAlg" style="margin-top:2px"><span><b>Alerjilerimi talebe ekle</b> (${esc(allergyLabels([...window.allergies]).join(', '))}). Yemeğin güvenli hazırlanması için yalnız alerjen adları gönderilir; tahlil ve belirti gönderilmez. Bu bilgi sağlık verisi sayıldığı için <b>açık rızamla</b> paylaşıyorum. İşaretlemezsen gönderilmez.</span></label>`:''}
     <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#475569;margin:6px 0 2px;cursor:pointer"><input type="checkbox" id="dvKvkk" style="margin-top:2px"><span>İletişim bilgilerimin bu talep kapsamında benimle iletişim için kullanılmasına onay veriyorum (<a href="/yasal/aydinlatma-metni" target="_blank">Aydınlatma Metni</a>).</span></label>
     <button class="btn go" id="dvSend" style="width:100%;justify-content:center;margin-top:6px">Talebi gönder</button>
     <button class="btn ghost" id="dvCancel" style="width:100%;justify-content:center;margin-top:8px">Vazgeç</button>
@@ -923,8 +926,9 @@ function openDeliveryModal(){
     const name=g('#dvName');if(!name){toast('Lütfen adını gir.','warn');return;}
     const phone=g('#dvPhone').replace(/[^0-9]/g,'');if(phone.length<10){toast('Lütfen geçerli bir telefon gir.','warn');return;}
     if(!m.querySelector('#dvKvkk').checked){toast('Devam için onay kutusunu işaretle.','warn');return;}
-    let txt=`Merhaba, Besinom menümü pişirip getirmenizi istiyorum.\n\nAd: ${name}\nTelefon: ${g('#dvPhone')}\nAdres: ${g('#dvAddr')}\nKişi: ${g('#dvPpl')} · Gün: ${g('#dvDays')}\n`;
-    const payload=BesinV4.leadPayload({ad:name,telefon:g('#dvPhone'),ilce_adres:g('#dvAddr'),kisi_sayisi:g('#dvPpl'),gun_sayisi:g('#dvDays'),kvkk_onay:true});
+    const alg=(m.querySelector('#dvAlg')&&m.querySelector('#dvAlg').checked)?[...window.allergies]:[];
+    let txt=`Merhaba, Besinom menümü pişirip getirmenizi istiyorum.\n\nAd: ${name}\nTelefon: ${g('#dvPhone')}\nAdres: ${g('#dvAddr')}\nKişi: ${g('#dvPpl')} · Gün: ${g('#dvDays')}\n`+(alg.length?`Alerji: ${allergyLabels(alg).join(', ')}\n`:'');
+    const payload=BesinV4.leadPayload({ad:name,telefon:g('#dvPhone'),ilce_adres:g('#dvAddr'),kisi_sayisi:g('#dvPpl'),gun_sayisi:g('#dvDays'),kvkk_onay:true,alerjenler:alg,alerji_acik_riza:alg.length>0});
     try{const tok=(document.querySelector('meta[name="csrf-token"]')||{}).content||'';const res=await fetch('/api/v1/besinai-lead',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':tok,'Accept':'application/json'},body:JSON.stringify(payload)});const out=await res.json();if(!out.ok)throw new Error('lead');if(BESINAI_WA)window.open('https://wa.me/'+BESINAI_WA+'?text='+encodeURIComponent(txt),'_blank');m.innerHTML='<div class="modal"><h2>Talebin alındı</h2><p>Ekibimiz hizmet uygunluğu için seninle iletişime geçecek.</p><button class="btn go" id="dvDone">Kapat</button></div>';m.querySelector('#dvDone').onclick=()=>m.remove();}catch(e){toast('Talep şu anda kaydedilemedi. Lütfen kısa süre sonra yeniden dene.','warn');}
   };
 }
