@@ -34,7 +34,7 @@ npm test          # analiz motoru ve güvenlik kuralı testleri
 
 Uygulamanın kendisi çevrimdışı çalışır, ama bazı bağlantılar yayındaki siteye (yemekhaneci.com.tr) gider ve bu depoda karşılığı yoktur:
 
-- **"Menümü pişirip getirin" formu.** Ad, telefon, ilçe/adres, kişi ve gün sayısını, kullanıcı onay kutusunu işaretleyip gönderirse `/api/v1/besinai-lead` adresine yollar. Tahlil, belirti ve analiz sonucu bu forma eklenmez. iOS uygulamasında form bilgi göndermez, sitedeki formu açar. Bu uç nokta sitede çalışır; depodan yerel çalıştırınca form hata verir.
+- **"Menümü pişirip getirin" formu.** Ad, telefon, ilçe/adres, kişi ve gün sayısını, kullanıcı onay kutusunu işaretleyip gönderirse `/api/v1/besinai-lead` adresine yollar. Tahlil, belirti ve analiz sonucu bu forma eklenmez. iOS uygulamasında form hiç gösterilmez; düğme doğrudan sitedeki formu açar. Bu uç nokta sitede çalışır; depodan yerel çalıştırınca form hata verir.
 - **Üst menü ve yasal metin bağlantıları** (Kalori Hesapla, Rehberler, Nasıl çalışır?, Aydınlatma Metni) sitedeki sayfalara gider.
 
 Kendi kopyanızı yayınlıyorsanız bu bağlantıları kendi adresinizle değiştirin ya da kaldırın.

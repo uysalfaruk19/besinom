@@ -77,3 +77,15 @@ test('bilgi tabanındaki her kaynak anahtarı SRC tablosunda var', () => {
   })()`, yukle());
   assert.equal(eksik, '');
 });
+
+test('iOS uygulamasında teslimat düğmesi formu göstermeden siteyi açar', () => {
+  const ctx = yukle();
+  const acilan = [];
+  let eklenen = 0;
+  ctx.Capacitor = {};
+  ctx.open = (u) => acilan.push(u);
+  ctx.document.body.appendChild = () => { eklenen++; };
+  vm.runInContext('openDeliveryModal()', ctx);
+  assert.deepEqual(acilan, ['https://yemekhaneci.com.tr/besinai']);
+  assert.equal(eklenen, 0, 'form penceresi açılmamalı');
+});
