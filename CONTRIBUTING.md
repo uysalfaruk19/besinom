@@ -27,6 +27,12 @@ Büyük bir değişikliğe (yeni modül, mimari değişiklik, yeni bağımlılı
 3. Denetimi çalıştırın: `npm run kontrol`. Kaynak tablosuna dokunduysanız `npm run link-kontrol` da çalıştırın.
 4. Çekme isteği (pull request) açın. Açıklamada ne değiştiğini, neden değiştiğini, nasıl denediğinizi ve sağlık bilgisi içeriyorsa kaynağını yazın.
 
+## Değişiklik nasıl yayına girer
+
+- Ana dala doğrudan gönderim kapalıdır; her değişiklik çekme isteğiyle gelir.
+- Çekme isteği, otomatik denetim (`kontrol`) geçmeden ve bakımcı onaylamadan birleştirilemez.
+- Birleştirilen değişiklik kendiliğinden yayına çıkmaz. Web sitesi ve App Store sürümünü bakımcılar kendi denetimleriyle yayınlar; hangi değişikliğin hangi sürüme gireceğine onlar karar verir.
+
 ## Kod düzeni
 
 - Derleme adımı ve çatı (framework) yok: düz HTML, CSS, JavaScript. Yeni bağımlılık eklemeyin.

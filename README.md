@@ -61,7 +61,7 @@ Depodaki Xcode projesinde imzalama bilgisi boştur. Kendi cihazınızda denemek 
 
 ## Katkı
 
-Hata bildirimi, yeni tarif, kaynak güncellemesi, çeviri ve kod katkısı kabul edilir. Nasıl başlayacağınız [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında yazıyor. Sağlık bilgisi içeren her değişiklik için kaynak göstermek zorunludur.
+Hata bildirimi, yeni tarif, kaynak güncellemesi, çeviri ve kod katkısı kabul edilir. Nasıl başlayacağınız [CONTRIBUTING.md](CONTRIBUTING.md) dosyasında yazıyor. Sağlık bilgisi içeren her değişiklik için kaynak göstermek zorunludur. Her katkı bakımcı onayıyla birleştirilir; web ve App Store sürümleri yalnız bakımcılar tarafından yayınlanır.
 
 Başlamak için uygun bilinen eksikler:
 
