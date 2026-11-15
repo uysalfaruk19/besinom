@@ -297,11 +297,11 @@ async function scheduleReminders(on){
   const C=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.LocalNotifications;
   if(!C)return false; // web ya da plugin kurulu değil → sessiz (uygulama sürümünde aktif olur)
   try{
-    const ids=[];for(let i=61;i<=68;i++)ids.push({id:i});for(let i=91;i<=93;i++)ids.push({id:i});for(let i=101;i<=127;i++)ids.push({id:i});
+    const ids=[];for(let i=61;i<=68;i++)ids.push({id:i});for(let i=91;i<=93;i++)ids.push({id:i});for(let i=101;i<=127;i++)ids.push({id:i});ids.push({id:130});
     try{await C.cancel({notifications:ids});}catch(e){}
     if(!on)return true;
     const p=await C.requestPermissions();if(p&&p.display&&p.display!=='granted')return false;
-    const t=remTimes(),notifs=[];
+    const t=remTimes(),notifs=[];let priv=false;try{priv=localStorage.getItem('besinai_rem_private')==='1';}catch(e){}
     // 💧 Su serisi — her gün tekrar; dokununca Takibim'deki su sayacına gider
     if(t.suOn){const SU=['Su molası 💧 Bir bardak iç, Takibim\'deki sayaca ekle.','💧 Gün yarılandı — su hedefinin neresindesin?','Bir bardak su iyi gider 💧 Sayacını güncelle.','Akşam suyunu unutma 💧 Hedefini tamamla.'];
       t.su.forEach((hm,i)=>{const x=_hm(hm);notifs.push({id:61+i,title:'Besinom · Su',body:SU[i%SU.length],schedule:{on:{hour:x.h,minute:x.m},repeats:true},extra:{go:'takibim'}});});}
@@ -313,11 +313,13 @@ async function scheduleReminders(on){
       for(let d=0;d<7;d++){const day=items[d%items.length]||[];
         MEALS.forEach(mm=>{const x=_hm(mm[1]);const at=new Date(now.getFullYear(),now.getMonth(),now.getDate()+d,x.h,x.m,0);if(at<=now)return;
           const meal=day.find(it=>it&&it.m===mm[0]);
-          const body=(meal&&meal.ad)?(mm[3]+' '+mm[2]+': '+meal.ad+(meal.kcal?' (~'+meal.kcal+' kcal)':'')+' — yaptıysan Takibim\'de işaretle.'):(mm[3]+' '+mm[2]+' vakti — menüne göz at.');
+          const body=(!priv&&meal&&meal.ad)?(mm[3]+' '+mm[2]+': '+meal.ad+(meal.kcal?' (~'+meal.kcal+' kcal)':'')+' — yaptıysan Takibim\'de işaretle.'):(mm[3]+' '+mm[2]+' vakti — menüne göz at.');
           notifs.push({id:id++,title:'Besinom',body,schedule:{at},extra:{go:'takibim'}});});}
     }else{
       MEALS.forEach((mm,i)=>{const x=_hm(mm[1]);notifs.push({id:91+i,title:'Besinom',body:mm[3]+' '+mm[2]+' vakti — bugün ne yiyeceğini planladın mı?',schedule:{on:{hour:x.h,minute:x.m},repeats:true},extra:{go:'menu'}});});
     }
+    // 🧪 Tahlil tekrarı: son tahlilden RECHECK_DAYS gün sonra tek hatırlatma (id 130). Metin hangi değer olduğunu söylemez (kilit ekranı gizliliği).
+    try{const lt=lastLabDate();if(lt){const at=new Date(new Date(lt).getTime()+RECHECK_DAYS*864e5);at.setHours(10,0,0,0);if(at>new Date())notifs.push({id:130,title:'Besinom · Takip',body:'🧪 Son tahlilinin üzerinden 3 ay geçti. Yeniden ölçtürüp değerlerini Takibim\'e eklemek ister misin?',schedule:{at},extra:{go:'takibim'}});}}catch(e){}
     if(notifs.length)await C.schedule({notifications:notifs});
     return true;
   }catch(e){return false;}
@@ -400,14 +402,23 @@ function saveLabLog(vals){if(!storageEnabled()||!vals)return;const keys=Object.k
     const sameDay=s.labLog.length&&String(s.labLog[s.labLog.length-1].t).slice(0,10)===_today();
     if(sameDay)s.labLog[s.labLog.length-1]={t:new Date().toISOString(),vals:snap};else s.labLog.push({t:new Date().toISOString(),vals:snap});
     if(s.labLog.length>60)s.labLog=s.labLog.slice(-60);lsSet(s);if(typeof renderLabTrend==='function')renderLabTrend();}catch(e){}}
+// Tekrar ölçüm: her tahlil anahtarının son ölçümü RECHECK_DAYS günden eskiyse listelenir (BesinTemporal.staleLabs ile aynı mantık, yerel).
+const RECHECK_DAYS=90;
+function staleLabList(nowIso){const log=(lsGet().labLog)||[];const last={};log.forEach(e=>{const t=String(e.t||'');Object.keys(e.vals||{}).forEach(k=>{if(!last[k]||t>last[k])last[k]=t;});});
+  const now=nowIso?new Date(nowIso):new Date();const out=[];
+  Object.keys(last).forEach(k=>{const L=(typeof LABBYKEY!=='undefined')&&LABBYKEY[k];if(!L)return;const age=Math.floor((now-new Date(last[k]))/864e5);if(age>=RECHECK_DAYS)out.push({key:k,label:L.label,ageDays:age});});
+  return out.sort((a,b)=>b.ageDays-a.ageDays);}
+function lastLabDate(){const log=(lsGet().labLog)||[];let m='';log.forEach(e=>{const t=String(e.t||'');if(t>m)m=t;});return m||null;}
 function renderLabTrend(){const el=$('#labTrend');if(!el)return;if(!storageEnabled()){el.innerHTML='';return;}
   const log=(lsGet().labLog)||[];const series={};log.forEach(e=>Object.keys(e.vals||{}).forEach(k=>{(series[k]=series[k]||[]).push(e.vals[k]);}));
   const data=Object.keys(series).filter(k=>series[k].length>=2&&typeof LABBYKEY!=='undefined'&&LABBYKEY[k]).map(k=>{const v=series[k];const first=v[0],last=v[v.length-1];const L=LABBYKEY[k];let better=(L.dir==='low')?(last>first):(last<first);try{const rf=L.ref&&L.ref(prof());if(rf&&better&&(last<rf[0]||last>rf[1]))better=false;}catch(e){}/* #6: son değer referans aralığı DIŞINDAysa (örn glukoz 90→40 hipoglisemi) iyileşme sayma */const arrow=last>first?'↑':last<first?'↓':'→';const col=(last===first)?'#94a3b8':(better?'#15803d':'#dc2626');const rel=first?Math.abs(last-first)/Math.abs(first):0;
-    return {first,last,better,rel,L,html:`<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:4px 0;flex-wrap:wrap"><span style="min-width:128px;font-weight:600">${L.label}</span><span><b>${first}</b> → <b>${last}</b> ${L.unit} <span style="color:${col};font-weight:800">${arrow}</span></span> ${sparkAuto(v)}</div>`};});
-  if(!data.length){el.innerHTML='';return;}
+    return {first,last,better,rel,L,html:`<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:4px 0;flex-wrap:wrap"><span style="min-width:128px;font-weight:600">${L.label}</span><span><b>${esc(first)}</b> → <b>${esc(last)}</b> ${L.unit} <span style="color:${col};font-weight:800">${arrow}</span></span> ${sparkAuto(v)}</div>`};});
+  const stale=staleLabList();
+  const staleBanner=stale.length?`<div style="font-size:13px;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px 12px;margin-bottom:10px">🧪 <b>Tekrar ölçüm zamanı:</b> ${stale.map(x=>esc(x.label)+' ('+x.ageDays+' gün önce)').join(', ')}. Beslenme değişikliklerinin etkisini görmek için genellikle 3 ayda bir yeniden ölçmek yeterlidir; zamanlamayı hekiminle netleştir.</div>`:'';
+  if(!data.length){el.innerHTML=staleBanner?`<div class="grp"><h3>🩸 Tahlil takibin</h3>${staleBanner}</div>`:'';return;}
   const best=data.filter(d=>d.better&&d.last!==d.first).sort((a,b)=>b.rel-a.rel)[0]; // iyileşme yönünde en büyük göreli değişim → motivasyon
   const banner=best?`<div style="font-size:13px;color:#15803d;background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:8px 12px;margin-bottom:10px">🎉 En çok iyileşen değerin: <b>${best.L.label}</b> (${best.first} → ${best.last} ${best.L.unit}). Emeğin işe yarıyor — böyle devam!</div>`:'';
   // #54 zaman-serisi sapma: ardışık ölçümlerde ≥2.5× ani değişim → gerçek olabilir ama ölçüm/birim hatası da olabilir (bilgilendirme, alarm değil)
   const anomalies=[];Object.keys(series).forEach(k=>{if(!LABBYKEY[k])return;const v=series[k];for(let i=1;i<v.length;i++){const a=v[i-1],b=v[i];if(a>0&&b>0&&Math.max(b/a,a/b)>=2.5){anomalies.push({L:LABBYKEY[k],a,b});break;}}});
   const anomBanner=anomalies.length?`<div style="font-size:12.5px;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px 12px;margin-bottom:10px">⚠️ <b>Ani değişim:</b> ${anomalies.map(x=>`${x.L.label} (${x.a}→${x.b} ${x.L.unit})`).join(', ')} kısa sürede çok değişti. Gerçek bir iyileşme/bozulma olabilir; ama ölçüm ya da birim (mg/dL↔mmol/L) hatası da olabilir — emin değilsen tekrar kontrol et veya hekimine danış.</div>`:'';
-  el.innerHTML=`<div class="grp"><h3>🩸 Tahlil trendin <span class="unit">(girdiğin değerlerin değişimi)</span></h3><div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px">${anomBanner}${banner}${data.map(d=>d.html).join('')}<div class="navnote" style="margin-top:8px">Yeşil = iyileşme yönünde. Her tahlilde değerlerini gir, trendin burada birikir.</div></div></div>`;}
+  el.innerHTML=`<div class="grp"><h3>🩸 Tahlil trendin <span class="unit">(girdiğin değerlerin değişimi)</span></h3><div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px">${staleBanner}${anomBanner}${banner}${data.map(d=>d.html).join('')}<div class="navnote" style="margin-top:8px">Yeşil = iyileşme yönünde. Her tahlilde değerlerini gir, trendin burada birikir.</div></div></div>`;}

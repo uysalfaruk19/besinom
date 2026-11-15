@@ -369,6 +369,7 @@ window.skinGoal=window.skinGoal||'';
 // #18 veri export/import
 {const ex=$('#dataExport');if(ex)ex.onclick=()=>{if(!exportData())toast('Dışa aktarılacak veri bulunamadı.','warn');else toast('Verilerin indirildi.','ok');};}
 {const im=$('#dataImport'),imf=$('#dataImportFile');if(im&&imf){im.onclick=()=>imf.click();imf.onchange=()=>{const f=imf.files&&imf.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{if(importData(String(rd.result))){toast('Verilerin geri yüklendi.','ok');setTimeout(()=>location.reload(),700);}else{toast('Dosya okunamadı ya da geçersiz Besinom yedeği.','warn');}imf.value='';};rd.readAsText(f);};}}
+{const pt=$('#remPrivateToggle');if(pt){let on=false;try{on=localStorage.getItem('besinai_rem_private')==='1';}catch(e){}pt.checked=on;pt.onchange=()=>{try{localStorage.setItem('besinai_rem_private',pt.checked?'1':'0');}catch(e){}if(typeof refreshRemindersIfOn==='function')refreshRemindersIfOn();};}}
 {const ht=$('#healthToggle');if(ht){let on=false;try{on=localStorage.getItem('besinai_health')==='1';}catch(e){}ht.checked=on;ht.onchange=async()=>{try{localStorage.setItem('besinai_health',ht.checked?'1':'0');}catch(e){}if(ht.checked&&typeof syncHealth==='function'){try{await syncHealth();}catch(e){}}};}}
 try{if(localStorage.getItem('besinai_health')==='1'&&typeof syncHealth==='function')syncHealth();}catch(e){}
 // PWA: service worker kaydı (ana ekrana kurulabilirlik + çevrimdışı kabuk)

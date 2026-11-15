@@ -47,3 +47,19 @@ test('paylaşım bağlantısı hedef besinleri (sağlık bilgisi) taşımaz ve u
   const metin = vm.runInContext('planText(true)', ctx);
   assert.ok(!/Hedef besinler/.test(metin));
 });
+
+test('tekrar ölçüm listesi 90 günden eski tahlilleri verir', () => {
+  const ctx = yukle();
+  ctx.localStorage.setItem('besinai_device_save_v1', '1');
+  ctx.localStorage.setItem('besinai_state_v1', '{}');
+  vm.runInContext(`lsSet({labLog:[{t:'2026-01-01T09:00:00Z',vals:{ferritin:12}},{t:'2026-10-20T09:00:00Z',vals:{b12:300}}]})`, ctx);
+  const liste = vm.runInContext(`staleLabList('2026-11-15T09:00:00Z')`, ctx);
+  assert.deepEqual([...liste.map((x) => x.key)], ['ferritin']);
+});
+
+test('çekirdek modül eval kullanmaz ve sayfada içerik güvenlik politikası var', () => {
+  const core = fs.readFileSync(path.join(KOK, 'besinai-js', 'besinai-core.js'), 'utf8');
+  assert.ok(!/\beval\(/.test(core));
+  const html = fs.readFileSync(path.join(KOK, 'index.html'), 'utf8');
+  assert.match(html, /Content-Security-Policy[^>]*connect-src 'self' https:\/\/yemekhaneci\.com\.tr/);
+});

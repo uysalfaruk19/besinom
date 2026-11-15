@@ -4,6 +4,10 @@
 // Sonraki fazlar (merkezi güvenlik, zamansal çıkarım, kalibre belirsizlik, AI katmanı) bunu tüketir.
 // Yükleme sırası: data → engine → feedback → CORE → app (sabitler + lsGet hazır olmalı).
 
+// Bilgi tabanı sabitlerine eval'siz erişim (eval içerik güvenlik politikasını zayıflatır; ad listesi sabittir).
+const _BESIN_KB={NUTR:()=>typeof NUTR!=='undefined'?NUTR:undefined,SYMP:()=>typeof SYMP!=='undefined'?SYMP:undefined,INTERACT:()=>typeof INTERACT!=='undefined'?INTERACT:undefined,COFACTOR:()=>typeof COFACTOR!=='undefined'?COFACTOR:undefined,LAB_MOD:()=>typeof LAB_MOD!=='undefined'?LAB_MOD:undefined,MED_MOD:()=>typeof MED_MOD!=='undefined'?MED_MOD:undefined,COND_MOD:()=>typeof COND_MOD!=='undefined'?COND_MOD:undefined,LABS:()=>typeof LABS!=='undefined'?LABS:undefined,CONDITIONS:()=>typeof CONDITIONS!=='undefined'?CONDITIONS:undefined,SRC:()=>typeof SRC!=='undefined'?SRC:undefined,DRUGDEP:()=>typeof DRUGDEP!=='undefined'?DRUGDEP:undefined};
+function _kb(name){const f=_BESIN_KB[name];try{return f?f():undefined;}catch(e){return undefined;}}
+
 // ============ DİJİTAL İKİZ (#1) ============
 // lsGet() içindeki dağınık anahtarları (labLog/sympLog/checkins/bodyLog/water/foodLog/history/lastMenu)
 // + canlı DOM profilini TEK normalize, zaman-farkında okuma arayüzüne projeksiyonlar. Yazma mantığını
@@ -61,8 +65,7 @@ const BesinTwin=(function(){
 // Düğüm tipleri: nutrient / symptom / biomarker / drug / condition / source. Kenarlar tipli + src'li.
 const BesinGraph=(function(){
   let G=null;
-  const has=n=>{try{return typeof window[n]!=='undefined'||eval('typeof '+n)!=='undefined';}catch(e){return false;}};
-  function _safe(name){try{return eval(name);}catch(e){return undefined;}}
+  const _safe=_kb;
   function build(){
     if(G)return G;
     const nodes={},edges=[];
@@ -185,7 +188,7 @@ const BesinTemporal=(function(){
 // (b) öneriyi değiştirebilecek/kesinleştirecek EKSİK tahlil. "Sadece besin değil, şunlar da olabilir + şunu ölçtür".
 // AI'dan bağımsız saf modül. (Faz 4: runAnalyze'a bağlanacak; şimdilik altyapı.)
 const BesinDifferential=(function(){
-  const _s=n=>{try{return eval(n);}catch(e){return undefined;}};
+  const _s=_kb;
   // ctx={symptoms:[seçili belirti adları], labKeys:[girilen lab anahtarları]}
   function forNutrient(nutKey,ctx){ctx=ctx||{};const SY=_s('SYMP')||[],LBS=_s('LABS')||[];
     const selSet=new Set(ctx.symptoms||[]),provided=new Set(ctx.labKeys||[]);
