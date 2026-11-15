@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light"><!-- tutarlı açık tema: dark-mode cihazlarda form/scrollbar oto-karartmasını engelle (tam karanlık tema ayrı bir CSS-değişken pass'i) -->
+<meta name="csrf-token" content="">
+<title>Besinom — Tahlilden Tabağa Kişisel Beslenme Rehberi</title>
+<meta name="description" content="Kan tahlilinizi, belirtilerinizi ve beslenme alışkanlıklarınızı kaynakları görünen günlük aksiyonlara ve gerçekçi bir menüye dönüştürün. Tıbbi teşhis değildir.">
+<link rel="canonical" href="https://yemekhaneci.com.tr/besinai">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Besinom — Tahlilden Tabağa">
+<meta property="og:description" content="Tahlil + alışkanlık + kaynaklı açıklama. Önce en önemli noktalar, sonra uygulanabilir menü.">
+<meta property="og:url" content="https://yemekhaneci.com.tr/besinai">
+<link rel="manifest" href="/besinai-manifest.webmanifest">
+<meta name="theme-color" content="#0EA5A4">
+<link rel="icon" type="image/svg+xml" href="/besinai-brand.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="/besinai-icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/besinai-icon-180.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><!-- iOS standalone: modern + legacy yan yana (iOS standalone için apple-* legacy gerekli; konsol uyarısı kozmetik) -->
+<meta name="apple-mobile-web-app-title" content="Besinom">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  :root{--navy:#0B2A4A;--navy2:#123a63;--blue:#1F6FB2;--green:#16A34A;--teal:#0EA5A4;--ink:#0f172a;--muted:#5b6b7f;--line:#e6ebf1;--bg:#f6f8fb;--card:#fff;--red:#dc2626}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+  a{color:var(--blue)}
+  header{background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;padding:22px 0}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--teal));display:grid;place-items:center;font-weight:900;font-size:20px;box-shadow:0 6px 16px rgba(14,165,164,.4)}
+  .brand b{font-size:20px;font-weight:800}.brand small{display:block;font-weight:500;font-size:12px;color:#cfe6e6}
+  .privacy{margin-left:auto;font-size:12px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);padding:6px 11px;border-radius:999px}
+  .privacy::before{content:"🔒 "}@media(max-width:640px){.privacy{display:none}}
+  main{padding:20px 0 60px}
+  /* güven şeridi */
+  .trust{background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+  .trust .tlead{font-size:14.5px;color:#1e293b;margin-bottom:9px}
+  .trust .tbadges{display:flex;flex-wrap:wrap;gap:8px}
+  .trust .tbadges span{font-size:12px;color:#334155;background:#f1f5f9;border-radius:999px;padding:5px 11px;font-weight:600}
+  .trust .tbadges small{color:#64748b;font-weight:400}
+  .trust .tcount{font-size:12px;color:#0e7490;margin-top:8px;font-weight:600}.trust .tcount:empty{display:none}
+  /* stepper */
+  .stepper{display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px}
+  .stp{flex:1;min-width:96px;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:11px;background:#fff;border:1.5px solid var(--line);font-size:12.5px;font-weight:700;color:#64748b;cursor:default;white-space:nowrap}
+  .stp .n{width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:#64748b;display:grid;place-items:center;font-size:12px;flex:0 0 22px}
+  .stp.on{border-color:var(--teal);color:var(--navy)}.stp.on .n{background:var(--teal);color:#fff}
+  .stp.done{color:#15803d;cursor:pointer}.stp.done .n{background:var(--green);color:#fff}
+  .stp.done:hover{border-color:var(--green)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 1px 2px rgba(16,42,74,.04)}
+  .panel h2{font-size:18px;font-weight:800;margin-bottom:4px}.panel .hint{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+  .grp{margin-bottom:18px}.grp h3{font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--teal);margin-bottom:9px}
+  .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:680px){.row{grid-template-columns:1fr 1fr}}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:680px){.row2{grid-template-columns:1fr}}
+  label.f{display:block;font-size:12.5px;color:#475569}label.f span{display:block;margin-bottom:3px;font-weight:600}
+  input,select{width:100%;padding:9px 10px;border:1.4px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;background:#fff}
+  input:focus,select:focus{outline:none;border-color:var(--teal)}
+  .unit{font-size:11px;color:#475569;font-weight:400}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{border:1.4px solid var(--line);background:#fff;border-radius:9px;padding:9px 14px;min-height:44px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit}
+  .seg button.on{background:var(--teal);border-color:var(--teal);color:#fff}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{font-size:13px;border:1.4px solid var(--line);border-radius:999px;padding:6px 14px;min-height:44px;display:inline-flex;align-items:center;cursor:pointer;user-select:none;background:#fff;transition:.12s}
+  .chip:hover{border-color:var(--teal)}.chip.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+  .hbrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .hbrow:last-child{border-bottom:0}
+  .hbq{font-size:13.5px;font-weight:600;color:#334155;flex:1 1 150px}
+  .hbopts{display:flex;gap:5px;flex-wrap:wrap}
+  .hbopt{font-size:11.5px;padding:4px 9px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;border:1.3px solid var(--line);border-radius:999px;cursor:pointer;color:#475569;background:#fff;user-select:none;white-space:nowrap;transition:.12s}
+  .hbopt:hover{border-color:var(--teal)}.hbopt.on{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:700}
+  .sympgrp{margin-bottom:12px}.sympgrp .t{font-size:11.5px;font-weight:700;color:#64748b;margin-bottom:7px}
+  /* B3: accordion ok işaretleri PSEUDO-element (aria-hidden span'de) — ham ▾/▸ glifi DOM/erişilebilirlik ağacına metin olarak SIZMAZ */
+  .symp-arrow{margin-left:auto;color:#94a3b8;font-weight:700;transition:transform .18s}
+  .symp-arrow::after{content:"\25B8"}/* ▸ */ .sympgrp[open] .symp-arrow{transform:rotate(90deg)}
+  .tradition-chev .chev::before{content:" \25BE"}/* ▾ */ .tradition-card[open] .tradition-chev .chev::before{content:" \25B4"}/* ▴ */
+  .navb{display:flex;gap:10px;align-items:center;margin-top:20px;flex-wrap:wrap}
+  .btn{border:none;border-radius:11px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn.go{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;box-shadow:0 6px 16px rgba(14,165,164,.3)}.btn.go:hover{filter:brightness(1.05)}
+  .btn.ghost{background:#fff;border:1.4px solid var(--line);color:#475569}
+  .navnote{font-size:12px;color:var(--muted)}
+  .kcal{background:#ecfeff;border:1px solid #a5f3fc;border-radius:12px;padding:13px 15px;font-size:13.5px;color:#155e75;margin-top:6px}
+  .kcal b{color:#0e7490;font-size:16px}
+  /* results */
+  .sech{font-size:15px;font-weight:800;margin:24px 0 12px}
+  .alarm{background:#fef2f2;border:1.5px solid #fecaca;color:#991b1b;border-radius:14px;padding:15px 17px;margin-bottom:14px;font-size:14px;display:flex;gap:11px}
+  .alarm.info{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+  .ncards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(max-width:820px){.ncards{grid-template-columns:1fr}}
+  .nc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+  .nc .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.nc h3{font-size:17px;font-weight:800}
+  .conf{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px}
+  .conf.Yüksek{background:#dcfce7;color:#15803d}.conf.Orta{background:#fef9c3;color:#a16207}.conf.Düşük{background:#f1f5f9;color:#64748b}
+  .islev{font-size:13px;color:#334155;background:#f0fdfa;border-left:3px solid var(--teal);padding:8px 11px;border-radius:0 8px 8px 0;margin-bottom:11px}
+  .why{font-size:12.5px;color:var(--muted);margin-bottom:13px}.why b{color:#475569}
+  .foods{display:grid;gap:6px}.food{display:flex;align-items:center;justify-content:space-between;font-size:13.5px;padding:7px 11px;background:#f8fafc;border-radius:9px}
+  .food .amt{font-size:11.5px;color:#64748b;font-weight:600;white-space:nowrap}
+  .pct{height:6px;border-radius:4px;background:#e2e8f0;overflow:hidden;width:54px;margin-left:10px}.pct i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--teal))}
+  .tip{font-size:12.5px;color:#475569;margin-top:11px}.cite{font-size:12px;color:#475569;margin-top:10px}.cite a{color:#0e7490;font-weight:600;text-decoration:underline}
+  .symprow{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:9px}
+  .symprow .h{font-weight:700;font-size:14px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .symprow .b{font-size:13px;color:#475569}.symprow .b b{color:#0f172a}
+  .rf{font-size:10.5px;font-weight:800;background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:999px}
+  .empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--muted)}
+  details.src{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  details.src summary{font-weight:700;font-size:13.5px;cursor:pointer}details.src ul{margin:12px 0 0 18px;font-size:12.5px;color:#475569;line-height:1.8}
+  details.src a{color:#0e7490;font-weight:600}
+  /* 📚 Kaynaklar ekrani — uygulama ici, veri girisi gerektirmeden erisilebilir kaynak listesi */
+  .src-btn{margin-left:10px;display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-weight:800;font-size:14px;padding:9px 14px;border-radius:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .src-btn:hover{background:#dbeafe}
+  .srcgrp{margin-bottom:18px}
+  .srcgrp h3{font-size:13px;font-weight:800;color:#0f766e;margin:0 0 8px;line-height:1.45}
+  .srcgrp-n{font-size:11px;font-weight:700;color:#475569;background:#f1f5f9;border-radius:999px;padding:2px 8px;margin-left:4px}
+  .srcgrp ul{margin:0 0 0 18px;padding:0;font-size:13px;line-height:1.85}
+  .srcgrp a{color:#0e7490;font-weight:600}
+  .src-intro{font-size:13px;color:#475569;line-height:1.65;margin:0 0 16px}
+  .src-foot{font-size:12px;color:#854d0e;background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;line-height:1.6;margin-top:6px}
+  .srccard{background:#fff;border:1px solid var(--line);border-left:4px solid #0e7490;border-radius:12px;padding:13px 15px;margin:14px 0}
+  .srccard>b{font-size:13.5px;color:#0f172a;display:block;margin-bottom:7px}
+  .srccard ul{margin:0 0 0 18px;padding:0;font-size:12.5px;line-height:1.8;color:#475569}
+  .srccard a{color:#0e7490;font-weight:600}
+  .srccard .btn{margin-top:10px;font-size:12.5px;padding:7px 13px}
+  @media(max-width:560px){.src-btn .src-btn-lbl{display:none}.src-btn{padding:9px 11px}}
+  /* menü */
+  .daterow{display:none;gap:10px;margin-top:10px}.daterow.show{display:flex}
+  .day{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+  .day .dh{font-weight:800;font-size:14px;margin-bottom:10px;color:var(--navy)}
+  .meals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:760px){.meals{grid-template-columns:1fr}}
+  .meal{border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  /* Derli toplu düzen: öğün ismi ana alanı tam genişlik kaplar (üstte); başka + detay sağ-altta gruplu */
+  .meal .mh{padding:10px 12px;display:flex;flex-direction:column;align-items:stretch;gap:6px;background:#f8fafc}
+  /* B4: gövde (.mbody) = tek aç/kapat dokun hedefi; macts butonları ayrık */
+  .meal .mh .mbody{width:100%;min-width:0;cursor:pointer;-webkit-tap-highlight-color:rgba(14,165,164,.12)}
+  /* Öğün satırı ÖZETİ tek satır: "🍳 Kahvaltı: Yemek adı" — ikon + öğün adı (teal) + yemek (navy). Tıkla→detay. */
+  .meal .mh .nm{font-size:13.5px;font-weight:700;line-height:1.4}.meal .mh .kc{font-size:11.5px;color:#475569;margin-top:3px}
+  .meal .mh .nm .meal-ic{font-size:15px;margin-right:5px;vertical-align:middle}
+  .meal .mh .nm .meal-of{color:var(--teal);font-weight:800}
+  .meal .mh .nm .meal-dish{color:var(--navy,#0f172a);font-weight:700}
+  .meal .mh .arBtn{flex-direction:row;gap:3px;font-size:11.5px;color:#0e7490;font-weight:700;border:1px solid var(--line)!important;min-width:auto;padding:0 9px}
+  .meal .mh .arBtn .ar{color:var(--teal);font-size:13px;font-weight:700;transition:transform .18s;display:inline-grid;place-items:center}
+  .meal .mh .arBtn .ar-lbl{line-height:1}
+  .meal .det{display:none;padding:12px;font-size:13px;border-top:1px solid var(--line)}.meal.open .det{display:block}.meal.open .mh{background:#ecfeff}.meal.open .arBtn .ar{transform:rotate(90deg)}
+  /* tarif kartı eylem ikonları — dokunma hedefi ≥44px, gövde tıklamasından ayrık */
+  .meal .mh .mact{display:inline-grid;place-items:center;min-width:44px;min-height:44px;background:none;border:none;cursor:pointer;padding:0;line-height:1;border-radius:10px}
+  .meal .mh .mact:active{background:#e0f2fe}
+  .meal .mh .swapBtn{font-size:11.5px;color:#0e7490;border:1px solid var(--line)!important;min-width:auto;padding:0 9px}
+  .meal .mh .mealDone{font-size:11.5px;color:#64748b;border:1px solid var(--line)!important;min-width:auto;padding:0 9px}
+  .meal .mh .macts{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-shrink:0;align-self:flex-end}
+  .ntag{display:inline-block;font-size:10.5px;font-weight:700;background:#ecfdf5;color:#15803d;padding:2px 8px;border-radius:999px;margin:0 4px 4px 0}
+  .meal .det h5{font-size:12px;font-weight:800;color:#475569;margin:9px 0 4px}.meal .det ul{margin:0 0 0 16px;color:#475569}
+  /* Alışveriş listesi (ekranda interaktif) */
+  .shopmodal{max-width:520px}
+  .shoplist{max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch;margin:0 -2px}
+  .shopgrp{margin-bottom:14px}
+  .shopcat{font-size:13px;font-weight:800;color:var(--navy);margin:0 0 6px;display:flex;align-items:center;gap:6px}
+  .shopcat .shopcatn{font-size:11.5px;font-weight:700;color:#475569;background:#f1f5f9;border-radius:999px;padding:1px 8px}
+  .shopitem{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;margin-bottom:6px;cursor:pointer;min-height:44px;background:#fff}
+  .shopitem input{width:21px;height:21px;flex-shrink:0;accent-color:var(--teal);cursor:pointer}
+  .shopitem .shopname{font-size:14.5px;color:#1e293b;flex:1}
+  .shopitem .shopx{font-size:11.5px;color:#475569;flex-shrink:0}
+  .shopitem.on{background:#f0fdf4;border-color:#bbf7d0}
+  .shopitem.on .shopname{text-decoration:line-through;color:#94a3b8}
+  .exp{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px}
+  .exp button{border:1.4px solid var(--line);background:#fff;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}.exp button:hover{border-color:var(--teal)}
+  .disc{margin-top:20px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 16px;font-size:12.5px;color:#854d0e}
+  footer{padding:26px 0;color:var(--muted);font-size:12.5px;text-align:center;border-top:1px solid var(--line)}
+  /* PDF Rapor (Beslenme Pasaportu) */
+  #pdfReport{display:none}
+  #pdfReport .pcover{text-align:center;padding:30px 0 22px;border-bottom:3px solid var(--teal)}
+  #pdfReport .pcover .plogo{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;display:inline-grid;place-items:center;font-weight:900;font-size:26px}
+  #pdfReport h1{font-size:23px;color:var(--navy);margin:12px 0 4px}
+  #pdfReport .psec{margin-top:18px;page-break-inside:avoid}
+  #pdfReport .psec h2{font-size:15px;color:var(--teal);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:9px}
+  #pdfReport table{width:100%;border-collapse:collapse;font-size:12px}
+  #pdfReport th,#pdfReport td{text-align:left;padding:5px 7px;border-bottom:1px solid #eef2f7}
+  #pdfReport th{background:#f1f5fa;color:var(--navy)}
+  #pdfReport .pday{margin-bottom:7px;page-break-inside:avoid}.pday b{color:var(--navy)}
+  #pdfReport .pfoot{margin-top:14px;font-size:10px;color:#94a3b8;border-top:1px solid var(--line);padding-top:7px}
+  @media print{
+    @page{size:A4;margin:13mm}
+    body.printing>*:not(#pdfReport){display:none!important}
+    body.printing #pdfReport{display:block!important}
+    body.printing{background:#fff}
+    #pdfReport .psec{page-break-inside:avoid}
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  @media print{.stepper,.navb,.exp,.daterow,.ov,header .privacy,.disc{display:none!important}}
+  .ov{position:fixed;inset:0;background:rgba(8,20,38,.6);display:grid;place-items:center;padding:18px;z-index:50}
+  .modal{background:#fff;border-radius:18px;max-width:540px;width:100%;padding:26px;max-height:90vh;overflow:auto}
+  .modal h2{font-size:19px;font-weight:800;margin-bottom:12px}.modal p{font-size:13.5px;color:#475569;margin-bottom:12px}.modal ul{font-size:13px;color:#475569;margin:0 0 14px 18px;line-height:1.7}.modal .btn{width:100%;justify-content:center}
+  /* besin kartı "devamı" katlanır blok — sadelik */
+  .nc-more{margin-top:10px}
+  .nc-more>summary{cursor:pointer;color:var(--teal);font-weight:700;font-size:12.5px;list-style:none;padding:7px 0;user-select:none}
+  .nc-more>summary::-webkit-details-marker{display:none}
+  .nc-more>summary::after{content:" ▾";color:#94a3b8;font-weight:400}
+  .nc-more[open]>summary::after{content:" ▴"}
+  /* aksiyon planı / genel özet+tıkla-detay accordion (≥44px dokunma, tıkla-aç) */
+  .act-acc{background:#fff;border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:12px;margin-bottom:8px;overflow:hidden}
+  .act-acc.act-acc-warn{border-left-color:#f59e0b;background:#fffbf5}
+  .act-acc.act-acc-info{border-left-color:#3b82f6;background:#f5f9ff}
+  .act-acc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:44px;padding:11px 14px;user-select:none}
+  .act-acc>summary::-webkit-details-marker{display:none}
+  .act-acc>summary::after{content:"▾";margin-left:auto;color:#94a3b8;font-size:13px;flex:0 0 auto}
+  .act-acc[open]>summary::after{content:"▴"}
+  .act-acc-h{font-weight:800;font-size:14px;color:#0f172a;flex:0 0 auto}
+  .act-acc-sum{font-size:12.5px;color:#0e7490;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .act-acc-body{padding:2px 14px 14px}
+  /* ===== MOBİL: pratik, app-benzeri, dağınıklık azalt ===== */
+  @media(max-width:640px){
+    .wrap{padding:0 12px}
+    main{padding:14px 0 48px}
+    .panel{padding:16px 14px;border-radius:14px}
+    .panel h2{font-size:17px}
+    .sech{font-size:14.5px;margin:18px 0 10px}
+    .ncards{gap:11px}.nc{padding:15px 14px}.nc h3{font-size:16px}
+    .stepper{gap:5px;margin-bottom:14px}
+    .stp{min-width:auto;flex:0 0 auto;font-size:11px;padding:8px 9px;gap:5px}
+    .stp .n{width:19px;height:19px;flex:0 0 19px;font-size:11px}
+    /* nav: tam-genişlik, büyük dokunma hedefi, devam üstte */
+    .navb{flex-direction:column-reverse;align-items:stretch;gap:8px;margin-top:18px}
+    .navb .btn{width:100%;justify-content:center;padding:14px}
+    .navb .navnote{text-align:center;order:-1}
+    .chip{padding:9px 14px;font-size:13.5px}
+    .seg button{flex:1;min-width:0}
+    .hbrow{flex-direction:column;align-items:stretch;gap:6px}
+    .hbq{flex:none}.hbopts{justify-content:space-between}.hbopt{flex:1;text-align:center;padding:8px 4px}
+    .alarm{padding:13px 14px;font-size:13.5px}
+    .result-overview{padding:16px 14px!important}
+  }
+  /* ===== HIZLI MOD (hero ön-analiz) ===== */
+  .quick{margin-top:22px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:16px;padding:16px 18px;box-shadow:0 6px 20px rgba(15,42,74,.06)}
+  .quick-head b{font-size:15px;color:var(--navy);display:block}
+  .quick-head .quick-tag{font-size:11px;font-weight:800;background:#ecfeff;color:#0e7490;border-radius:999px;padding:2px 9px;vertical-align:middle;margin-left:4px}
+  .quick-head small{display:block;font-size:12.5px;color:var(--muted);margin-top:4px;font-weight:500}
+  .quick-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:13px 0 11px}
+  .quick-row .seg button{padding:9px 16px}
+  .quick-symp-lbl{font-size:12px;font-weight:700;color:#475569;margin-bottom:8px}
+  .quick-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:13px}
+  .quick-actions .btn.go{min-height:46px;padding:11px 20px}
+  .quick-link{background:none;border:none;color:#0f766e;font-weight:600;font-size:13.5px;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px 6px;min-height:44px;display:inline-flex;align-items:center}
+  /* belirti araması butonu — analiz butonunun ÜSTÜNDE, görünür (chip-tarzı, tam genişlik mobilde) */
+  .quick-search-toggle{display:flex;width:100%;justify-content:center;text-decoration:none;margin-top:11px;border:1.5px dashed var(--teal);border-radius:11px;background:#f0fdfa;color:#0f766e;font-weight:700;font-size:14px;min-height:46px}
+  .quick-search-toggle:hover{background:#e6fbf8}
+  #quickUpsell .qup{background:linear-gradient(135deg,#eff6ff,#ecfdf5);border:1px solid #bfdbfe;border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  #quickUpsell .qup p{margin:0;font-size:13.5px;color:#1e3a5f}
+  #quickUpsell .qup .btn{padding:10px 18px;font-size:14px}
+  @media(max-width:560px){.quick-actions .btn.go{width:100%}.quick-row .f[style*="96px"]{flex:1 1 96px!important}}
+</style>
+<link rel="stylesheet" href="/besinai-css/app-v4.css">
+<link rel="stylesheet" href="/besinai-css/besinai-mobile.css" media="screen and (max-width: 768px)">
+</head>
+<body data-besinai-wa="">
+<header class="site-header"><div class="wrap brand">
+  <a class="brand-lockup" href="/besinai" aria-label="Besinom ana sayfa"><img class="brand-mark" src="/besinai-brand.svg" alt=""><div><b>Besinom</b><small>Tahlilden tabağa</small></div></a>
+  <nav class="header-nav" aria-label="Ana menü"><a href="https://yemekhaneci.com.tr/besinai/kalori-hesapla">🔢 Kalori Hesapla</a><a href="https://yemekhaneci.com.tr/besinai/tencere">🍲 Besin Tenceresi</a><a href="https://yemekhaneci.com.tr/besinai/takviye-rehberi">💊 Takviye Rehberi</a><a href="https://yemekhaneci.com.tr/besinai/rehberler">Rehberler</a><a href="https://yemekhaneci.com.tr/besinai/nasil-calisir">Nasıl çalışır?</a><a class="nav-cta" href="#uygulama">Analize başla</a></nav>
+  <button type="button" id="openSources" class="src-btn" aria-label="Kaynaklar — uygulamadaki bilgilerin dayandığı kurum ve yayınlar">📚<span class="src-btn-lbl">Kaynaklar</span></button>
+  <button type="button" id="openSettings" class="gear-btn" aria-label="Ayarlar ve Takibim panelini aç">⚙️ Ayarlar</button>
+</div></header>
+
+<main class="wrap">
+  <!-- Görünür otomatik resume: kayıtlı durum varsa (consent sonrası) sayfanın EN ÜSTÜNDE açık banner — az-teknoloji kullanıcı görsün. -->
+  <div id="resumeTop" class="resume-top is-hidden" aria-live="polite"></div>
+  <section class="hero" id="hero">
+    <div>
+      <div class="eyebrow">Tahlilden tabağa · herkese açık · ömür boyu ÜCRETSİZ</div>
+      <h1>Tahlilini anlaşılır bir beslenme planına çevir.</h1>
+      <p class="hero-copy">Tahlil, belirti ve alışkanlıklarını kaynağı görünen kişisel önceliklere ve uygulanabilir bir menüye dönüştür. Teşhis değil — kişisel rehber.</p>
+      <div class="hero-actions"><a class="btn go" href="#uygulama">Hemen başla →</a><button class="btn ghost" type="button" id="heroDemo">Örnek profille gör</button></div>
+    </div>
+  </section>
+
+  <section class="app-zone" id="uygulama">
+  <div class="app-intro"><div><div class="eyebrow">Kişisel analiz</div><h2>Bilgilerini adım adım ekle</h2><p>Yalnız bildiklerini gir. Tahlilin yoksa alışkanlıklarınla devam edebilirsin.</p></div><span class="privacy">Analiz verileri sunucuya gönderilmez</span></div>
+  <div id="onboard"></div>
+  <div class="stepper" id="stepper"></div>
+  <div id="resumeBar"></div>
+  <!-- 📊 TAKİBİM artık sağ-üst "⚙️ Ayarlar" çekmecesinde · GÜVEN ŞERİDİ en alta taşındı (ana odak = Profil & Hedef göz hizasında) -->
+
+  <!-- ADIM 1: PROFİL & HEDEF — sade: kısa bilgi + pratik girdi + Başla; gerisi ⚙️ Özelleştir altında -->
+  <section class="step panel" id="step0">
+    <h2>① Profil &amp; hedef</h2>
+    <div class="hint">Birkaç temel bilgini gir, <b>"Başla →"</b> de. Kalori hedefin ve menün buna göre kişiselleşir. <b>Tahlil gerekmez</b> — sonraki adımda belirtilerinle devam edebilirsin.</div>
+    <div class="grp"><h3>Temel bilgiler</h3>
+      <div class="row">
+        <label class="f"><span>Yaş <span class="unit">(18+)</span></span><input type="number" id="yas" min="18" max="120" placeholder="35" aria-label="Yaşınız (18 ve üzeri)"></label>
+        <label class="f"><span>Cinsiyet</span><select id="cinsiyet" aria-label="Cinsiyet"><option value="">—</option><option value="k">Kadın</option><option value="e">Erkek</option></select></label>
+        <label class="f"><span>Boy <span class="unit">cm</span></span><input type="number" id="boy" placeholder="170" aria-label="Boyunuz (santimetre)"></label>
+        <label class="f"><span>Kilo <span class="unit">kg</span></span><input type="number" id="kilo" placeholder="70" aria-label="Kilonuz (kilogram)"></label>
+      </div>
+    </div>
+    <div class="grp"><h3>Hedefin</h3>
+      <div class="seg" id="hedef">
+        <button data-h="ver">⬇ Kilo vermek</button>
+        <button data-h="koru" class="on">⟷ Korumak</button>
+        <button data-h="al">⬆ Kilo almak</button>
+      </div>
+      <div class="kcal" id="kcalBox" style="display:none"></div>
+    </div>
+
+    <!-- ⚙️ ÖZELLEŞTİR: tüm ikincil ayarlar tek katlanır panel altında, varsayılan KAPALI. Boş bırakılırsa makul varsayılan kullanılır, akış kırılmaz. -->
+    <details class="opt-block" id="customizeBlock" style="border:1px solid var(--line);border-radius:14px;padding:2px 14px;margin-bottom:18px"><summary style="cursor:pointer;padding:14px 2px;font-weight:800;font-size:13px;letter-spacing:.04em;color:#0f766e" aria-label="Özelleştir — diyet, alerji, aktivite, hastalık ve ilaç, damak tadı, gizlilik (opsiyonel)">⚙️ Özelleştir <span class="unit" style="font-weight:400;letter-spacing:0">(opsiyonel)</span></summary>
+    <div style="padding-top:6px">
+    <div class="grp"><h3>Aktivite düzeyin <span class="unit">(kalori hesabını netleştirir)</span></h3>
+      <label class="f"><select id="aktivite" aria-label="Aktivite düzeyiniz"><option value="1.2">Hareketsiz (masa başı)</option><option value="1.375" selected>Hafif aktif (haftada 1-3 gün)</option><option value="1.55">Aktif (3-5 gün)</option><option value="1.725">Çok aktif (6-7 gün)</option></select></label>
+    </div>
+    <div class="grp"><h3>Diyet tercihin / kısıtların</h3>
+      <div class="chips" id="diet">
+        <div class="chip" data-d="vejetaryen">Vejetaryen</div>
+        <div class="chip" data-d="vegan">Vegan</div>
+        <div class="chip" data-d="glutensiz">Glutensiz</div>
+        <div class="chip" data-d="etsiz">Kırmızı et yemem</div>
+        <div class="chip" data-d="denizsiz">Deniz ürünü yemem</div>
+        <div class="chip" data-d="sutsuz">Süt/laktoz yok</div>
+      </div>
+    </div>
+    <div class="grp"><h3>⚠️ Alerjilerin <span class="unit">(güvenlik — seçtiklerini içeren tarif ve öneriler tamamen elenir)</span></h3>
+      <div class="chips" id="allergies">
+        <div class="chip" data-al="fistik">Yer fıstığı</div>
+        <div class="chip" data-al="kuruyemis">Kuruyemiş (fındık/ceviz/badem)</div>
+        <div class="chip" data-al="yumurta">Yumurta</div>
+        <div class="chip" data-al="sut">Süt ürünleri</div>
+        <div class="chip" data-al="balik">Balık</div>
+        <div class="chip" data-al="kabuklu">Kabuklu deniz ürünü</div>
+        <div class="chip" data-al="gluten">Gluten</div>
+        <div class="chip" data-al="susam">Susam</div>
+        <div class="chip" data-al="soya">Soya</div>
+      </div>
+    </div>
+    <div class="grp"><h3>🩺 Durumun <span class="unit">(varsa seç — güvenlik-kritik uyarılar analizde en üstte gösterilir)</span></h3>
+      <div class="chips" id="conditions">
+        <div class="chip" data-c="gebelik">Gebelik</div>
+        <div class="chip" data-c="emzirme">Emzirme</div>
+        <div class="chip" data-c="cocuk">Bebek / Çocuk</div>
+        <div class="chip" data-c="sporcu">Sporcu</div>
+        <div class="chip" data-c="yasli">65+ yaş</div>
+        <div class="chip" data-c="vegan">Vegan</div>
+        <div class="chip" data-c="bobrek">Böbrek hastalığı</div>
+        <div class="chip" data-c="varfarin">Kan sulandırıcı (varfarin)</div>
+        <div class="chip" data-c="tiroid">Tiroid</div>
+        <div class="chip" data-c="diyabet">Diyabet</div>
+        <div class="chip" data-c="colyak">Çölyak</div>
+        <div class="chip" data-c="bariatrik">Bariatrik Cerrahi</div>
+        <div class="chip" data-c="ibd">Crohn / Kolit (İBH)</div>
+        <div class="chip" data-c="ibs">Hassas Bağırsak (IBS)</div>
+        <div class="chip" data-c="alkol">Yüksek Alkol</div>
+        <div class="chip" data-c="menopoz">Menopoz</div>
+        <div class="chip" data-c="osteoporoz">Osteoporoz</div>
+        <div class="chip" data-c="laktozintolerans">Laktoz İntoleransı</div>
+        <div class="chip" data-c="hipertansiyon">Yüksek Tansiyon</div>
+        <div class="chip" data-c="pcos">PCOS</div>
+        <div class="chip" data-c="gout">Gut / Yüksek Ürik Asit</div>
+        <div class="chip" data-c="migren">Migren</div>
+        <div class="chip" data-c="hashimoto">Hipotiroidi / Hashimoto</div>
+        <div class="chip" data-c="nafld">Karaciğer Yağlanması</div>
+      </div>
+    </div>
+    <div class="grp"><h3>Düzenli kullandığın ilaç <span class="unit">(varsa — bazı ilaçlar emilimi veya düzeyi etkileyebilir)</span></h3>
+      <div class="chips" id="meds">
+        <div class="chip" data-m="metformin">Metformin (şeker)</div>
+        <div class="chip" data-m="ppi">Mide ilacı (PPI)</div>
+        <div class="chip" data-m="diuretik">İdrar söktürücü</div>
+        <div class="chip" data-m="kortikosteroid">Kortizon</div>
+        <div class="chip" data-m="antiepileptik">Sara/epilepsi</div>
+        <div class="chip" data-m="izoniazid">Verem ilacı</div>
+        <div class="chip" data-m="varfarin">Kan sulandırıcı</div>
+        <div class="chip" data-m="levotiroksin">Tiroid hormonu (levotiroksin)</div>
+        <div class="chip" data-m="statin">Kolesterol ilacı (statin)</div>
+        <div class="chip" data-m="oralKontraseptif">Doğum kontrol hapı</div>
+        <div class="chip" data-m="maoi">MAOI (antidepresan)</div>
+        <div class="chip" data-m="loopDiuretik">Loop diüretik (furosemid)</div>
+        <div class="chip" data-m="kolsisin">Kolşisin (gut/FMF)</div>
+        <div class="chip" data-m="kolestiramin">Safra asidi bağlayıcı (kolestiramin)</div>
+        <div class="chip" data-m="ssri">Antidepresan (SSRI/SNRI)</div>
+        <div class="chip" data-m="digoksin">Digoksin (kalp)</div>
+        <div class="chip" data-m="immunsupresan">Bağışıklık baskılayıcı</div>
+      </div>
+    </div>
+    <div class="grp"><h3>Damak tadın <span class="unit">(sevdiklerini seç — menü ağırlıklı bunlardan gelir)</span></h3>
+      <div class="chips" id="taste">
+        <div class="chip" data-t="et">Et yemekleri</div>
+        <div class="chip" data-t="tavuk">Tavuk</div>
+        <div class="chip" data-t="balik">Balık / deniz</div>
+        <div class="chip" data-t="sebze">Sebze yemekleri</div>
+        <div class="chip" data-t="baklagil">Baklagil (mercimek/nohut)</div>
+        <div class="chip" data-t="sut">Süt/peynir/yoğurt</div>
+        <div class="chip" data-t="kuruyemis">Kuruyemiş</div>
+        <div class="chip" data-t="meyve">Meyve</div>
+        <div class="chip" data-t="yumurta">Yumurta</div>
+      </div>
+    </div>
+    <div class="grp"><h3>Sevmediğin / istemediğin yiyecekler <span class="unit">(virgülle ayır — menü ve öneriler bunlardan kaçınır)</span></h3>
+      <input type="text" id="dislikesInput" placeholder="örn: ciğer, balık, brokoli" aria-label="Sevmediğin yiyecekler (virgülle ayır)" style="width:100%;min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit">
+    </div>
+    <div class="navnote" style="margin:4px 0 2px">🔒 Gizlilik, veri yedeği ve hatırlatıcı ayarları sağ-üst <b>⚙️ Ayarlar</b> bölümünde.</div>
+    </div>
+    </details>
+    <div class="navb"><button class="btn go" data-next="1">Başla → Belirtiler</button><span class="navnote">Yalnızca yaş, cinsiyet, boy ve kilo yeterli — gerisi opsiyonel.</span></div>
+  </section>
+
+  <!-- ADIM 2: LAB -->
+  <!-- ADIM 2: BELİRTİLER (profil sonrası) -->
+  <section class="step panel" id="step1" style="display:none">
+    <h2>② Belirtiler</h2>
+    <div class="hint">Yaşadığın belirtileri işaretle (opsiyonel). Birden fazla seçebilirsin — ne kadar çok seçersen analiz o kadar isabetli olur.</div>
+    <div class="grp" id="nlBox" style="margin-bottom:16px;background:#f0fdfa;border:1px solid #a5f3fc;border-radius:12px;padding:12px 14px">
+      <h3 style="margin-top:0">💬 Kendi cümlenle anlat <span class="unit">(istersen yaz — belirtilerini, ilacını, tahlil değerini otomatik bulalım)</span></h3>
+      <textarea id="nlInput" rows="2" placeholder="Örn: Sürekli yorgunum, saçlarım dökülüyor, metformin kullanıyorum, ferritinim 11" aria-label="Belirtilerini kendi cümlenle yaz" style="width:100%;min-height:56px;resize:vertical;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:9px"></textarea>
+      <div style="margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn go" id="nlGo" type="button" style="padding:7px 15px">Belirtilerimi bul →</button> <span id="nlMsg" class="navnote"></span></div>
+    </div>
+    <div id="symps"></div>
+    <details class="opt-block" style="margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:2px 14px"><summary style="cursor:pointer;padding:13px 2px;font-weight:800;font-size:13px;color:#0f766e">🍽 Beslenme alışkanlıkların <span class="unit" style="font-weight:400">(opsiyonel — lab girmesen bile analizi güçlendirir)</span></summary>
+      <div style="padding-bottom:10px">
+        <div class="hint" style="margin-bottom:10px">Şunları ne sıklıkta tüketiyorsun?</div>
+        <div id="habits"></div>
+      </div>
+    </details>
+    <div class="navb"><button class="btn ghost" data-back="0">← Geri</button><button class="btn go" data-next="2">Devam → Tahlil</button></div>
+  </section>
+
+  <!-- ADIM 3: TAHLİL (opsiyonel — atlanabilir) -->
+  <section class="step panel" id="step2" style="display:none">
+    <h2>③ Tahlil değerleri <span style="font-size:13px;font-weight:600;color:#64748b">— opsiyonel</span></h2>
+    <div class="hint"><b>Tahlil girmek zorunlu değil.</b> Elinde tahlil yoksa aşağıdan doğrudan analizini alabilirsin. Değerlerini girersen sonucun güveni belirgin artar.</div>
+    <div class="navb" style="margin-top:0;margin-bottom:18px"><button class="btn go" id="toAnalyzeTop" style="font-size:15px;padding:12px 20px">Tahlilim yok · doğrudan analize geç →</button><span class="navnote">Çoğu kullanıcı burayı seçer — tahlilsiz de kişisel analiz alırsın.</span></div>
+    <!-- Opsiyonel tahlil daveti: alanlar varsayılan KAPALI; kullanıcı isterse tıklayıp açar (zorunlu sanılmasın) -->
+    <button type="button" id="labsInviteCard" aria-expanded="false" aria-controls="labsBlock" style="display:block;width:100%;max-width:520px;margin:0 auto 18px;background:#f0fdfa;border:1.6px dashed var(--teal);border-radius:16px;padding:18px 20px;cursor:pointer;text-align:center;font-family:inherit;transition:.15s">
+      <div style="font-size:16px;font-weight:800;color:var(--navy)">📋 Tahliliniz var mı?</div>
+      <div style="font-size:13px;color:#475569;margin-top:6px;line-height:1.5">Değer girersen sonuç daha isabetli olur.<br><span class="unit" style="font-size:12px">Opsiyonel · tahlil olmadan da analiz yapılır.</span></div>
+      <div id="labsInviteChevron" style="font-size:13px;color:var(--teal);font-weight:700;margin-top:8px">Değerleri gir ▾</div>
+    </button>
+    <div id="labsBlock" hidden>
+    <div id="ocrCard" style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:14px;padding:14px 16px;margin-bottom:18px">
+      <div style="font-size:13.5px;font-weight:700;color:#0f766e;margin-bottom:4px">📷 Tahlil fotoğrafından otomatik doldur <span style="font-size:10.5px;background:#fde68a;color:#92400e;padding:1px 7px;border-radius:999px;font-weight:800;vertical-align:middle">BETA</span></div>
+      <div style="font-size:12.5px;color:#475569;margin-bottom:10px">Tahlil sonucunun net bir fotoğrafını/ekran görüntüsünü seç; değerleri okuyup buraya taşıyalım. <b>Görselin cihazından çıkmaz.</b> İlk kullanımda internet + birkaç saniye gerekir; <b>çalışmazsa değerleri aşağıdan elle girebilirsin.</b> OCR hatalı okuyabilir — aktarmadan önce her değeri kontrol et.</div>
+      <input type="file" id="ocrFile" accept="image/*" style="display:none">
+      <button type="button" class="btn go" id="ocrBtn" style="padding:9px 15px;font-size:13.5px">📷 Fotoğraf seç</button>
+      <span id="ocrStatus" class="navnote" style="margin-left:8px"></span>
+      <div id="ocrReview" style="margin-top:12px"></div>
+    </div>
+    <div class="row" id="labs"></div>
+    <details id="labsIleriWrap" style="margin-top:6px"><summary style="cursor:pointer;padding:10px 2px;font-weight:800;font-size:12px;letter-spacing:.05em;color:#0e7490" aria-label="Daha fazla tahlil değeri — ileri ve ek parametreler, varsa gir">🔬 DAHA FAZLA TAHLİL DEĞERİ</summary><div class="row" id="labs-ileri" style="margin-top:10px"></div></details>
+    </div>
+    <div class="navb"><button class="btn ghost" data-back="1">← Geri</button><button class="btn go" id="toAnalyze">Analiz Et →</button></div>
+  </section>
+
+  <!-- ADIM 4: ANALİZ -->
+  <section class="step panel" id="step3" style="display:none">
+    <h2>④ Beslenme Analizi</h2>
+    <div class="hint">Girdiğin verilere göre olası beslenme ihtiyaçların ve kaynaklı öneriler. Tıbbi teşhis değildir.</div>
+    <div id="quickUpsell"></div>
+    <div id="sympMix"></div>
+    <div id="results"></div>
+    <div class="navb"><button class="btn ghost" data-back="2">← Geri</button><button class="btn go" data-next="4">Menüye Geç →</button></div>
+  </section>
+
+  <!-- ADIM 5: MENÜ -->
+  <section class="step panel" id="step4" style="display:none">
+    <h2>⑤ Menü</h2>
+    <!-- Opp4: kullanıcı menü adımına girer girmez VARSAYILANLA örnek menü görür (momentum kırılmaz). Açıklama metni yok; doğrudan "⚙️ Menüyü özelleştir" + menü. Ayarlar tek katlı bölüm altında; isteyen açar. -->
+    <!-- 1) 🎯 Hedef besin kapsaması (ana odak, en üstte) -->
+    <div id="targetNote" class="navnote" style="margin-bottom:10px"></div>
+    <div id="coverageHost"></div>
+    <!-- 2) MENÜ — ana odak, doğrudan görünür (yemek her şeyden önce) -->
+    <div id="menuOut" style="margin-top:4px"></div>
+    <!-- 3) Mutfak Mikseri — menünün ALTINDA (yeni kullanıcı önce yemeği görsün; preset seçilince menü yenilenir + menüye kaydırılır) -->
+    <section class="menu-mixer">
+      <div class="mm-h"><span aria-hidden="true">🍽️</span> Mutfak Mikseri <span class="unit" style="font-weight:400">(menü bu tercihe göre değişir)</span></div>
+      <div id="mixBar" style="margin-bottom:6px"></div>
+      <div id="mixSummary" class="navnote" style="margin-bottom:10px"></div>
+      <div class="chips" id="mixPresets" style="margin-bottom:4px">
+        <div class="chip mix-preset on" data-p="dengeli">⚖️ Dengeli</div>
+        <div class="chip mix-preset" data-p="akdeniz">🫒 Akdeniz</div>
+        <div class="chip mix-preset" data-p="geleneksel">🏛️ Geleneksel</div>
+        <div class="chip mix-preset" data-p="pratik">🍔 Pratik</div>
+        <div class="chip mix-preset" data-p="protein">💪 Protein</div>
+        <div class="chip mix-preset" data-p="salata">🥬 Salata</div>
+        <div class="chip mix-preset" data-p="dunya">🌍 Dünya</div>
+        <div class="chip mix-preset" data-p="corba">🍲 Çorba</div>
+        <div class="chip mix-preset" data-p="italyan">🍝 İtalyan</div>
+        <div class="chip mix-preset" data-p="meksika">🌮 Meksika</div>
+        <div class="chip mix-preset" data-p="bowl">🥣 Bowl</div>
+        <div class="chip mix-preset" data-p="fit">🥑 Fit</div>
+      </div>
+      <details class="analysis-details" style="margin-top:12px"><summary>Mutfak oranlarını ince ayarla</summary><div class="analysis-detail-body"><div id="mixPanel" style="margin-top:10px"></div></div></details>
+    </section>
+    <!-- 4) Diğer ayarlar (göz hizasının altında): süre · kişi · bütçe · odak -->
+    <details class="menu-customize" id="menuCustomize" style="margin-top:14px">
+      <summary>⚙️ Menüyü özelleştir — program · süre · kişi · bütçe · odak</summary>
+      <div class="menu-customize-body">
+        <div class="grp"><h3>🍽️ Beslenme programı <span class="unit" style="font-weight:400">(keto/IF tıbbi diyettir — menüde uyarı gösterilir)</span></h3>
+          <div class="seg" id="menuProgram" role="group" aria-label="Beslenme programı"><button type="button" data-prog="standart" class="on">Standart</button><button type="button" data-prog="pratik">⚡ Pratik</button><button type="button" data-prog="keto">🥑 Ketojenik</button><button type="button" data-prog="protein">💪 Yüksek protein</button><button type="button" data-prog="if">⏱️ Aralıklı oruç</button></div>
+        </div>
+        <div class="grp"><h3>🍱 Öğün düzeni <span class="unit" style="font-weight:400">(aralıklı oruç seçiliyse 2 öğün geçerlidir)</span></h3>
+          <div class="seg" id="mealPlan" role="group" aria-label="Öğün düzeni"><button type="button" data-meals="3" class="on">3 öğün</button><button type="button" data-meals="5">5 öğün (3 ana + 2 ara)</button></div>
+        </div>
+        <div class="grp"><h3 class="cz-lbl"><span aria-hidden="true">⏱️</span><span class="sr-only">Süre</span></h3>
+          <div class="seg" id="period" role="group" aria-label="Süre"><button data-d="1" class="on">Günlük</button><button data-d="7">Haftalık</button><button data-d="range">Tarih aralığı</button></div>
+          <div class="daterow" id="daterow"><label class="f" style="margin:0"><span>Başlangıç</span><input type="date" id="d1" aria-label="Başlangıç tarihi"></label><label class="f" style="margin:0"><span>Bitiş</span><input type="date" id="d2" aria-label="Bitiş tarihi"></label></div>
+        </div>
+        <div class="grp"><h3 class="cz-lbl"><span aria-hidden="true">👤</span><span class="sr-only">Kişi sayısı</span></h3>
+          <div class="servings-stepper" role="group" aria-label="Kişi sayısı (alışveriş listesi buna göre ölçeklenir)">
+            <button type="button" class="srv-btn" id="srvMinus" aria-label="Azalt">−</button>
+            <input type="number" id="servings" min="1" max="20" value="1" inputmode="numeric" readonly aria-live="polite" aria-label="Kişi sayısı">
+            <button type="button" class="srv-btn" id="srvPlus" aria-label="Artır">+</button>
+            <span class="srv-lbl" id="srvLbl">1 kişilik</span>
+          </div>
+        </div>
+        <div class="grp"><h3 class="cz-lbl"><span aria-hidden="true">💰</span><span class="sr-only">Bütçe</span></h3>
+          <div class="seg" id="budget" role="group" aria-label="Bütçe (menü buna göre ekonomik/dengeli seçilir)"><button type="button" data-b="0" class="on">Farketmez</button><button type="button" data-b="1">💸 Ekonomik</button><button type="button" data-b="2">⚖️ Dengeli</button></div>
+        </div>
+        <div class="grp"><h3 class="cz-lbl"><span aria-hidden="true">🎯</span><span class="sr-only">Beslenme odağı</span></h3>
+          <div class="seg" id="focusSel" role="group" aria-label="Beslenme odağı (analiz yapmadıysan menüyü bir hedefe yönlendir)"><button type="button" data-fk="" class="on">Farketmez</button><button type="button" data-fk="enerji">⚡ Enerji</button><button type="button" data-fk="bagisiklik">🛡️ Bağışıklık</button><button type="button" data-fk="ciltsac">✨ Cilt & Saç</button><button type="button" data-fk="kemik">🦴 Kemik</button><button type="button" data-fk="konsantrasyon">🧠 Konsantrasyon</button></div>
+        </div>
+        <div class="grp"><h3>🧴 Cilt hedefi <span class="unit" style="font-weight:400">(beslenmeyle cilt — "krem yerine içeriden")</span></h3>
+          <div class="seg" id="skinGoal" role="group" aria-label="Cilt hedefi"><button type="button" data-sk="" class="on">Farketmez</button><button type="button" data-sk="akne">🔴 Akne</button><button type="button" data-sk="yaslanma">⏳ Yaşlanma/çizgi</button><button type="button" data-sk="kuru">🌵 Kuru cilt</button><button type="button" data-sk="leke">🟤 Leke/ton</button></div>
+        </div>
+        <button type="button" class="btn go" id="genMenu" style="width:100%;justify-content:center;margin-top:4px">✓ Bu ayarlarla menüyü yenile</button>
+      </div>
+    </details>
+    <div class="navb" style="margin-top:8px"><button class="btn ghost" data-back="3">← Geri</button></div>
+    <div id="recipeSearch" style="margin-top:16px"></div>
+    <div id="rememberPrompt"></div>
+    <div id="checkin" style="margin-top:18px"></div>
+  </section>
+
+  <!-- GÜVEN ŞERİDİ — sayfanın en altında (ana odakların altında ek bilgi) -->
+  <div id="trustStrip" class="trust" style="margin-top:22px">
+    <div class="tlead">Tahlil, belirti ve alışkanlıklarını <b>kaynağı görünen kişisel önceliklere</b> ve uygulanabilir menüye dönüştür.</div>
+    <div class="tbadges">
+      <span>📚 <a href="#kaynaklar" onclick="openBesinaiSources();return false;" style="color:inherit;font-weight:800;text-decoration:underline"><span id="srcCountBadge">44</span> otorite kaynak — listeyi gör</a> <small>(NIH · WHO · EFSA · TÜBER)</small></span>
+      <span>🔒 Analiz verileri cihazında işlenir</span>
+      <span>🆓 Herkese açık · ömür boyu ücretsiz · reklamsız · satıştan bağımsız</span>
+      <span>🩺 Teşhis değil — wellness</span>
+    </div>
+    <div class="tcount" id="trustCount"></div>
+    <div style="margin-top:9px"><a href="https://yemekhaneci.com.tr/besinai/nasil-calisir" style="font-size:12.5px;color:var(--teal);font-weight:600;text-decoration:none">❓ Besinom nasıl çalışır? — yöntem &amp; şeffaflık →</a></div>
+  </div>
+  <div class="disc" style="font-size:12px">🔒 Analiz verileri tarayıcınızda işlenir; yalnız iletişim/teklif formunu gönderirseniz o formdaki bilgiler sunucuya iletilir. <a href="https://yemekhaneci.com.tr/besinai/nasil-calisir#yasal" style="color:#854d0e;font-weight:700">Tıbbi uyarı &amp; yasal (detay)</a></div>
+</section>
+</main>
+<nav class="wrap" style="font-size:12.5px;color:#475569;padding:8px 18px;line-height:2">
+  <b style="color:#64748b">Beslenme rehberleri:</b>
+  <a href="https://yemekhaneci.com.tr/besinai/demir-eksikligi">Demir eksikliği</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/b12-eksikligi">B12 eksikliği</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/d-vitamini">D vitamini</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/ferritin-kac-olmali">Ferritin kaç olmalı</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/kansizlik-icin-menu">Kansızlık için beslenme</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/diyabet-dostu-menu">Diyabet dostu menü</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/sporcu-beslenme">Sporcu beslenmesi</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/gebelikte-beslenme">Gebelikte beslenme</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/vegan-b12">Vegan B12</a> ·
+  <a href="https://yemekhaneci.com.tr/besinai/rehberler"><b>Tüm rehberler →</b></a>
+</nav>
+<footer class="wrap"><div style="max-width:760px;margin:0 auto 10px;line-height:1.6">🩺 İçerik, beslenme bilimi otorite kaynaklarından (<a href="#kaynaklar" onclick="openBesinaiSources();return false;" style="font-weight:700">NIH ODS, WHO, EFSA, TÜBER, NHS · Mayo · Cleveland Clinic — tüm kaynakları gör</a>) derlenir ve klinik-güvenlik ilkeleri (doz/teşhis sınırı, kırmızı-bayrak belirtilerde hekime yönlendirme) gözetilerek hazırlanıp güncel tutulur. Bu içerik eğitim ve wellness amaçlıdır; tıbbi teşhis veya tedavi yerine geçmez. <b>Kişisel durumun için hekimine veya diyetisyenine danış.</b></div>Besinom · Yemekhaneci Gıda · Gebze/Kocaeli · <a href="https://yemekhaneci.com.tr/bv/">Proje hakkında</a> · <a href="https://yemekhaneci.com.tr/besinai/nasil-calisir#yasal" id="legalLink">Yasal uyarı</a> · <a href="https://yemekhaneci.com.tr/yasal/aydinlatma-metni">Gizlilik / KVKK</a></footer>
+
+<!-- ⚙️ AYARLAR & TAKİBİM çekmecesi (sağ-üst "Ayarlar" butonu açar). Ekstra/ikincil her şey burada → ana akış sade kalır. -->
+<div class="settings-overlay" id="settingsOverlay"></div>
+<aside class="settings-drawer" id="settingsDrawer" aria-hidden="true" aria-label="Ayarlar ve Takibim">
+  <div class="sd-head"><b>⚙️ Ayarlar &amp; Takibim</b><button type="button" class="sd-close" id="closeSettings" aria-label="Kapat">✕</button></div>
+  <div class="sd-body">
+    <div class="sd-sec">
+      <details id="trackWrap" open style="border:1px solid var(--line);border-radius:14px;padding:0 14px"><summary style="cursor:pointer;padding:13px 2px;font-weight:800;font-size:12px;letter-spacing:.06em;color:#0e7490" aria-label="Takibim — günlük takip, tahlil trendi, geçmiş ve profiller">📊 TAKİBİM</summary>
+        <div style="padding-bottom:8px">
+          <div id="trackEmpty" style="font-size:13px;color:#475569;line-height:1.6;padding:6px 2px 10px">📊 İlk analizinden sonra <b>tahlil trendin</b>, <b>günlük serin</b> ve <b>haftalık gelişimin</b> burada birikir. Veriler yalnız cihazında tutulur.</div>
+          <div id="profileBar"></div>
+          <div id="todayCard"></div>
+          <div id="improveCard"></div>
+          <div id="weeklyCard"></div>
+          <div id="labTrend"></div>
+          <div id="foodLog"></div>
+          <div id="historyBar"></div>
+        </div>
+      </details>
+    </div>
+    <div class="sd-sec">
+      <details class="opt-block" open style="border:1px solid var(--line);border-radius:14px;padding:2px 14px"><summary style="cursor:pointer;padding:13px 2px;font-weight:800;font-size:12px;letter-spacing:.06em;color:#475569" aria-label="Gizlilik, veri ve hatırlatıcı — cihazda saklama, yedek ve taşıma, hatırlatıcı, Apple Sağlık">🔒 Gizlilik · veri · hatırlatıcı</summary>
+      <div style="padding-bottom:10px;display:flex;flex-direction:column;gap:4px">
+      <label class="storage-choice"><input type="checkbox" id="deviceSave"><span><b>Profilimi bu cihazda sakla</b><small>Varsayılan olarak hiçbir profil veya takip verisi kalıcı saklanmaz. Ortak cihazlarda işaretleme.</small></span></label>
+      <label class="storage-choice"><input type="checkbox" id="reminderToggle"><span><b>Su &amp; öğün hatırlatıcıları</b><small>Gün içi su serisi + öğün vakitlerinde menündeki gerçek yemek adlarıyla bildirim. Besinom uygulamasında çalışır; bildirimler cihazında üretilir, veri dışarı çıkmaz.</small></span></label>
+      <div id="reminderTimes" style="display:none;margin:2px 0 10px 4px;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px;color:#475569"></div>
+      <div class="storage-choice" style="gap:8px;flex-wrap:wrap"><span style="flex:1 1 100%"><b>Verilerim (taşınabilirlik)</b><small>Tüm verini tek dosyada indir, başka cihaza/sürüme geri yükle. Veri yine yalnız senin cihazında.</small></span><button type="button" class="btn ghost" id="dataExport" style="font-size:12.5px;padding:6px 12px">⬇️ Verilerimi indir</button><button type="button" class="btn ghost" id="dataImport" style="font-size:12.5px;padding:6px 12px">⬆️ Geri yükle</button><input type="file" id="dataImportFile" accept="application/json,.json" style="display:none"></div>
+      <label class="storage-choice" style="display:none" data-v1-kapali="capacitor-health eklenince ac"><input type="checkbox" id="healthToggle"><span><b>Apple Sağlık / Health Connect'ten veri al</b><small>İzin verirsen kilo, adım ve aktif kaloriyi cihazdan okuyup takibine ekler (iOS/Android uygulamasında çalışır; veri sunucuya gönderilmez).</small></span></label>
+      </div>
+      </details>
+    </div>
+  </div>
+</aside>
+
+<!-- 📚 KAYNAKLAR paneli — uygulamadaki tum saglik/beslenme bilgisinin dayandigi kaynaklar,
+     veri girisi gerektirmeden, her ekrandan (ust bar + alt sekme) tek dokunusla acilir. -->
+<div class="settings-overlay" id="sourcesOverlay"></div>
+<aside class="settings-drawer" id="sourcesPanel" aria-hidden="true" aria-label="Kaynaklar">
+  <div class="sd-head"><b>📚 Kaynaklar</b><button type="button" class="sd-close" id="closeSources" aria-label="Kapat">✕</button></div>
+  <div class="sd-body">
+    <p class="src-intro">Besinom'daki tüm beslenme ve sağlık bilgileri aşağıdaki kurumların ve bilimsel yayınların güncel referanslarından derlenir. Her başlığa dokunarak kaynağın kendisini açabilirsin.</p>
+    <div id="sourcesList"></div>
+    <p class="src-foot">🩺 Bu içerik eğitim ve wellness amaçlıdır; tıbbi teşhis, tedavi veya reçete yerine geçmez. Kişisel durumun için hekimine veya diyetisyenine danış.</p>
+  </div>
+</aside>
+
+<div class="ov is-hidden" id="ov" role="dialog" aria-modal="true" aria-labelledby="consentTitle"><div class="modal">
+  <h2 id="consentTitle">Başlamadan önce</h2>
+  <div style="background:#dcfce7;border:1px solid #86efac;color:#15803d;border-radius:10px;padding:9px 12px;font-weight:700;font-size:13.5px;margin-bottom:10px">🎁 Besinom herkese açık ve ÖMÜR BOYU ÜCRETSİZ — reklam yok, ücretli üyelik yok, kart bilgisi istenmez.</div>
+  <p>Bu uygulama <b>tıbbi teşhis, tedavi veya reçete sunmaz.</b> Çıktılar kesin tıbbi değerlendirme değildir; beslenme açısından <b>olası ihtiyaçlara</b> dikkat çeker ve <b>otoriter kaynaklara</b> (NIH ODS, USDA, TÜBER, NHS/Mayo/Cleveland) dayanır.</p>
+  <ul><li>Analiz verileri <b>cihazınızda</b> işlenir, sunucuya gönderilmez.</li><li>Çıktılar olası beslenme önceliğidir, hastalık tanısı değildir.</li><li>İlaç/doz/tedavi önerisi verilmez. Şikayetinizde hekime danışın.</li><li><b>Acil durumda</b> (nefes darlığı, göğüs ağrısı, bayılma vb.) <b>112</b>'yi arayın ya da en yakın sağlık kuruluşuna başvurun.</li></ul>
+  <button class="btn go" id="accept" style="width:100%;margin-top:4px">18 yaşından büyüğüm, anladım — Başla</button>
+  <button type="button" class="btn ghost" onclick="openBesinaiSources()" style="width:100%;margin-top:8px;font-size:13.5px">📚 Önce kaynaklarımıza bak</button>
+</div></div>
+
+<!-- Besinom JS modülleri (tek blade → modüller). Yükleme sırası önemli: data→engine→menu→feedback→app -->
+<script src="/besinai-js/besinai-safety.js"></script>
+<script src="/besinai-js/besinai-v4-core.js"></script>
+<script src="/besinai-js/besinai-data.js"></script>
+<script src="/besinai-js/besinai-engine.js"></script>
+<script src="/besinai-js/besinai-menu.js"></script>
+<script src="/besinai-js/besinai-feedback.js"></script>
+<script src="/besinai-js/besinai-core.js"></script>
+<script src="/besinai-js/besinai-ai.js"></script>
+<script src="/besinai-js/besinai-app.js"></script>
+<link rel="stylesheet" href="/besinai-css/tabbar.css">
+<link rel="stylesheet" href="/besinai-css/besinai-mobile.css" media="screen and (max-width: 768px)">
+<nav class="besinai-tabbar" aria-label="Besinom uygulama menüsü">
+  <a href="#go=analiz"          data-tab="analiz"><span class="tb-ico" aria-hidden="true">🩺</span><span class="tb-lbl">Analiz</span></a>
+  <a href="#go=menu"            data-tab="menu"><span class="tb-ico" aria-hidden="true">🍽️</span><span class="tb-lbl">Menü</span></a>
+  <a href="https://yemekhaneci.com.tr/besinai/tencere"            data-tab="tencere"><span class="tb-ico" aria-hidden="true">🍲</span><span class="tb-lbl">Besinler</span></a>
+  <a href="https://yemekhaneci.com.tr/besinai/takviye-rehberi"    data-tab="takviye"><span class="tb-ico" aria-hidden="true">💊</span><span class="tb-lbl">Takviye</span></a>
+  <a href="#go=kaynaklar"       data-tab="kaynaklar"><span class="tb-ico" aria-hidden="true">📚</span><span class="tb-lbl">Kaynaklar</span></a>
+  <a href="#go=takibim"         data-tab="takibim"><span class="tb-ico" aria-hidden="true">📊</span><span class="tb-lbl">Takibim</span></a>
+</nav>
+<script src="/besinai-js/besinai-tabbar.js"></script>
+</body>
+</html>
+

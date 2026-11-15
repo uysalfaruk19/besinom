@@ -1,0 +1,23 @@
+{
+  "name": "besinom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Besinom: tahlilden tabağa kişisel beslenme rehberi (çevrimdışı, kural tabanlı)",
+  "license": "Apache-2.0",
+  "scripts": {
+    "kontrol": "node scripts/kontrol.mjs",
+    "link-kontrol": "node scripts/link-kontrol.mjs",
+    "ios:sync": "cap sync ios",
+    "ios:open": "cap open ios",
+    "assets": "capacitor-assets generate --ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/local-notifications": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/assets": "^3.0.5"
+  }
+}

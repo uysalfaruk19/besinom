@@ -1,0 +1,20 @@
+{
+  "name": "Besinom — Kişisel Beslenme Asistanı",
+  "short_name": "Besinom",
+  "description": "Tahlil, belirti ve alışkanlıkları kaynakları görünen günlük aksiyonlara ve gerçekçi menüye dönüştüren kişisel beslenme rehberi.",
+  "lang": "tr",
+  "dir": "ltr",
+  "start_url": "/besinai",
+  "scope": "/besinai",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f8fb",
+  "theme_color": "#0EA5A4",
+  "categories": ["health", "lifestyle", "medical"],
+  "icons": [
+    { "src": "/besinai-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/besinai-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/besinai-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/besinai-brand.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

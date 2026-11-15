@@ -1,0 +1,45 @@
+/* BesinAI mobil native app-shell — sabit alt tab-bar (yalnız ≤768px).
+   Tüm besinai sayfalarında ortak; masaüstünde tamamen gizli (üst nav korunur). */
+.besinai-tabbar{display:none}
+
+/* Dokunmatik cihazlarda (telefon + tablet) her zaman goster: iPad'de ust menu 820px altinda
+   gizlendigi icin tab-bar olmadan uygulamada hic gorunur gezinme kalmiyordu. */
+@media(max-width:768px),(pointer:coarse){
+  /* Native app hissi: alt sabit tab-bar */
+  .besinai-tabbar{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:90;
+    background:rgba(255,255,255,.97);backdrop-filter:blur(14px);
+    border-top:1px solid #dce7ef;
+    box-shadow:0 -4px 18px rgba(16,42,67,.08);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .besinai-tabbar a{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    min-height:58px;padding:7px 2px 6px;
+    text-decoration:none;color:#334155;font-weight:700;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .besinai-tabbar a .tb-ico{font-size:21px;line-height:1}
+  .besinai-tabbar a .tb-lbl{font-size:12px;letter-spacing:-.01em;line-height:1.1}
+  .besinai-tabbar a.is-active{color:#0f766e}
+  .besinai-tabbar a.is-active .tb-ico{transform:translateY(-1px)}
+  .besinai-tabbar a:active{background:#f0fdfa}
+
+  /* İçeriği örtmesin: alt boşluk (safe-area dahil). footer/nav son içerik bar altında kalmasın. */
+  body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))!important}
+
+  /* Cekmece (Ayarlar / Kaynaklar) tab-bar'in ve sticky header'in USTUNDE olmali, acik cekmecenin
+     alt icerigi de bar altinda kalmamali. Bu kurallar tab-bar'in gorundugu HER genislikte gecerli
+     olmali: besinai-mobile.css yalniz <=768px yuklendigi icin iPad'de (820pt) cekmece 71'de kalip
+     bar'in (90) altina dusuyordu. 18+ onay modali 130'da; cekmece ondan da yukarida ki onay
+     ekranindan "kaynaklari gor" denince panel gercekten gorunsun. */
+  .settings-overlay{z-index:140}
+  .settings-drawer{z-index:141}
+  .settings-drawer .sd-body{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+
+  /* yazı-boyu widget'ı tab-bar üstüne taşı (çakışma yok) */
+  .fs-control{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+}
+
+/* Tab-bar print'te gizli */
+@media print{.besinai-tabbar{display:none!important}}

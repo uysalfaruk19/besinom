@@ -1,0 +1,14 @@
+{
+  "appId": "com.yemekhaneci.besinai",
+  "appName": "Besinom",
+  "webDir": "www",
+  "backgroundColor": "#0EA5A4",
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#f6f8fb"
+  },
+  "server": {
+    "iosScheme": "https",
+    "allowNavigation": ["yemekhaneci.com.tr"]
+  }
+}

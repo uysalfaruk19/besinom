@@ -1,0 +1,199 @@
+/* BesinAI mobile-only app surface. Loaded with media="(max-width: 768px)". */
+@media screen and (max-width:768px){
+  :root{
+    --mobile-safe-bottom:env(safe-area-inset-bottom,0px);
+    --mobile-header-h:60px;
+    --mobile-tab-h:66px;
+    --mobile-action-h:76px;
+  }
+
+  html{
+    scroll-padding-top:calc(var(--mobile-header-h) + 58px);
+    background:#f3f7f8;
+  }
+
+  body{
+    background:#f3f7f8!important;
+    padding-bottom:calc(var(--mobile-tab-h) + var(--mobile-action-h) + var(--mobile-safe-bottom))!important;
+    -webkit-tap-highlight-color:rgba(15,118,110,.14);
+  }
+
+  .wrap{width:100%!important;max-width:100%!important;padding-inline:14px!important}
+
+  .site-header{
+    position:sticky;top:0;z-index:88;
+    background:rgba(255,255,255,.98);
+    border-bottom:1px solid rgba(220,231,239,.95);
+    box-shadow:0 8px 22px rgba(16,42,67,.06);
+  }
+
+  .site-header .brand{
+    min-height:var(--mobile-header-h)!important;
+    width:100%;justify-content:space-between;gap:10px;
+  }
+
+  .brand-lockup{min-width:0;gap:9px}
+  .brand-mark{width:38px;height:38px}
+  .brand b{font-size:18px}.brand small{font-size:11px;color:#64748b}
+  .header-nav,.privacy{display:none!important}
+
+  .gear-btn{
+    margin-left:auto!important;min-width:44px;min-height:44px;
+    padding:0 12px!important;border-radius:999px!important;
+    font-size:0!important;gap:0!important;
+  }
+  .gear-btn::before{content:"\2699";font-size:20px;line-height:1}
+
+  main.wrap{
+    padding-top:10px!important;
+    padding-bottom:calc(var(--mobile-tab-h) + var(--mobile-action-h) + 20px + var(--mobile-safe-bottom))!important;
+  }
+
+  #hero{display:block!important;padding:0!important;margin:0 0 10px!important}
+  #hero .eyebrow,#hero h1,#hero .hero-copy,#hero .hero-actions .btn.go{display:none!important}
+  #hero .hero-actions{display:flex!important;margin:0!important}
+  #hero .hero-actions .btn.ghost{
+    width:100%;min-height:44px;border-radius:14px;background:#fff;
+    border:1px solid #dbe7ef;color:#0f766e;font-size:14px;
+    box-shadow:0 8px 22px rgba(16,42,67,.05);
+  }
+
+  .app-zone{padding:0 0 8px!important;scroll-margin-top:calc(var(--mobile-header-h) + 58px)}
+  .app-intro{margin:0 0 10px!important;padding:0!important}
+  .app-intro .eyebrow,.app-intro p,.app-intro .privacy{display:none!important}
+  .app-intro h2{margin:0;font-size:20px!important;line-height:1.2;letter-spacing:0!important}
+
+  .resume-top{margin:0 0 10px!important;padding:12px!important;border-radius:14px!important}
+
+  .stepper{
+    position:sticky!important;top:var(--mobile-header-h)!important;z-index:82!important;
+    display:flex!important;gap:8px!important;margin:0 -14px 12px!important;
+    padding:9px 14px!important;overflow-x:auto;
+    background:rgba(243,247,248,.98)!important;
+    border-bottom:1px solid rgba(220,231,239,.9)!important;
+    box-shadow:0 8px 16px rgba(16,42,67,.05)!important;
+    scrollbar-width:none;
+  }
+  .stepper::-webkit-scrollbar{display:none}
+  .stp{
+    flex:0 0 auto!important;min-width:108px!important;min-height:40px!important;
+    padding:7px 10px!important;border-radius:999px!important;background:#fff!important;
+    font-size:12px!important;box-shadow:none!important;
+  }
+  .stp .n{width:22px!important;height:22px!important;flex:0 0 22px!important}
+  .stp.on{background:#0f766e!important;border-color:#0f766e!important;color:#fff!important}
+  .stp.on .n{background:rgba(255,255,255,.18)!important;color:#fff!important}
+  .stp.done{border-color:#99f6e4!important;color:#0f766e!important}
+
+  .panel{
+    border-radius:18px!important;padding:18px 14px!important;
+    border:1px solid #dce7ef!important;
+    box-shadow:0 10px 30px rgba(16,42,67,.07)!important;
+  }
+  .panel h2{font-size:21px!important;line-height:1.2;letter-spacing:0!important}
+  .panel .hint{font-size:14px!important;line-height:1.55;margin-bottom:16px!important}
+  .grp{margin-bottom:18px!important}
+  .grp h3{margin-bottom:9px!important;font-size:12px!important;letter-spacing:.04em!important}
+
+  .row,.row2{grid-template-columns:1fr!important;gap:10px!important}
+  label.f{font-size:14px!important}
+  input,select,textarea{
+    min-height:52px!important;border-radius:14px!important;font-size:16px!important;
+    padding:12px 13px!important;border-color:#cbd9e3!important;
+  }
+  textarea{line-height:1.45}
+
+  .seg{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+  .seg button,.chip,.hbopt,.btn{min-height:48px!important;border-radius:14px!important}
+  .seg button{width:100%;text-align:center;font-size:14.5px!important}
+  .chips{gap:8px!important}
+  .chip{padding:9px 13px!important;font-size:14px!important;background:#fff}
+  .chip.on,.seg button.on{background:#0f766e!important;border-color:#0f766e!important;color:#fff!important}
+
+  .hbrow{flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+  .hbq{flex:none!important}
+  .hbopts{display:grid!important;grid-template-columns:repeat(4,1fr);gap:6px!important}
+  .hbopt{padding:7px 4px!important;font-size:12px!important}
+
+  .navb{
+    position:sticky!important;
+    bottom:calc(var(--mobile-tab-h) + var(--mobile-safe-bottom))!important;
+    z-index:84!important;display:grid!important;grid-template-columns:1fr!important;gap:8px!important;
+    margin:18px -14px -18px!important;
+    padding:10px 14px calc(10px + var(--mobile-safe-bottom))!important;
+    background:rgba(255,255,255,.98)!important;border-top:1px solid #dce7ef!important;
+    box-shadow:0 -10px 24px rgba(16,42,67,.08)!important;
+  }
+  .navb .btn{width:100%!important;justify-content:center!important;padding:13px 16px!important;font-size:15px!important}
+  .navb .btn.ghost{order:2;background:#f8fafc!important}
+  .navb .btn.go{order:1;background:linear-gradient(135deg,#0f766e,#0d9488)!important}
+  .navb .navnote{order:3;text-align:center;font-size:12px!important;line-height:1.35}
+
+  .trust,.quick,.demo-callout,.storage-choice,.menu-mixer,.menu-customize,.quick-summary,.result-overview{border-radius:16px!important}
+  .quick-row,.quick-actions,.exp,.daterow.show{display:grid!important;grid-template-columns:1fr!important;gap:9px!important}
+  .quick-actions .btn,.exp button,.daterow.show>*{width:100%!important}
+  .ncards,.meals,.priority-strip{grid-template-columns:1fr!important;gap:12px!important}
+  .nc,.day,.meal,.symprow,.act-acc{border-radius:16px!important}
+  .nc{padding:16px 14px!important}.day{padding:15px 14px!important}.meal .mh{padding:12px!important}
+  .meal .mh .macts{width:100%;justify-content:space-between!important}.meal .mh .mact{flex:1}
+
+  .result-overview{padding:17px 14px!important;margin-top:0!important}
+  .result-overview h3,.quick-summary h3{font-size:20px!important;line-height:1.28!important;letter-spacing:0!important}
+
+  .modal{
+    width:100%!important;max-width:100%!important;max-height:calc(100vh - 18px)!important;
+    border-radius:22px 22px 0 0!important;
+    padding:22px 16px calc(22px + var(--mobile-safe-bottom))!important;
+  }
+  .ov{align-items:end!important;padding:0!important}
+  .settings-drawer{width:100%!important}.settings-drawer .sd-head{min-height:60px}
+  /* NOT: cekmecenin z-index'i artik tabbar.css'te, tab-bar ile AYNI medya sorgusunda tanimli
+     (140/141). Burada tekrarlanmiyordu cunku bu dosya yalniz <=768px yukleniyor ve iPad'de
+     bosluk biraktigi olculdu. */
+
+  #besinaiToastHost{bottom:calc(var(--mobile-tab-h) + 12px + var(--mobile-safe-bottom))!important;z-index:120!important}
+  .bz-toast{max-width:none!important;border-radius:15px!important}
+  .fs-control{display:none!important}
+
+  body .besinai-tabbar{
+    min-height:var(--mobile-tab-h)!important;z-index:100!important;
+    background:rgba(255,255,255,.985)!important;border-top:1px solid #dce7ef!important;
+    box-shadow:0 -8px 24px rgba(16,42,67,.10)!important;
+  }
+  body .besinai-tabbar a{min-height:var(--mobile-tab-h)!important;padding:8px 2px calc(8px + var(--mobile-safe-bottom))!important}
+  body .besinai-tabbar a .tb-ico{font-size:21px!important}
+  body .besinai-tabbar a .tb-lbl{font-size:11px!important;line-height:1.05!important}
+  body .besinai-tabbar a.is-active{color:#0f766e!important}
+}
+/* 2026-07-10 m2 — yayin oncesi denetim duzeltmeleri:
+   1) 18+ onay modali tabbar altinda kaliyordu (.ov z-index 50 < tabbar 100) → overlay tabbar ustune alindi.
+   2) "Hedef besin kapsamasi" satirlari viewport'tan tasiyordu → bar esnek + satir sarmali.
+   3) Cift "Tekrar hos geldin" (resumeTop + resumeBar) → mobilde alttaki gizli.
+   4) Ayarlar cekmecesinde son icerik tabbar altinda kalmasin. */
+@media screen and (max-width: 768px) {
+  .ov {
+    z-index: 130 !important;
+  }
+  .modal {
+    max-height: calc(100svh - 18px) !important;
+  }
+
+  #coverageHost div[style*="display:flex"] {
+    flex-wrap: wrap !important;
+    row-gap: 4px !important;
+  }
+  #coverageHost span[style*="width:90px"] {
+    width: 60px !important;
+    flex: 1 1 60px !important;
+  }
+
+  #resumeTop:not(.is-hidden) ~ .app-zone #resumeBar {
+    display: none !important;
+  }
+
+  .settings-drawer .sd-body {
+    padding-bottom: calc(
+      var(--mobile-tab-h) + var(--mobile-safe-bottom) + 18px
+    ) !important;
+  }
+}
