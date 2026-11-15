@@ -661,19 +661,23 @@ function renderMenu(plan,labels){
   // Yalnız günlük (tek gün) menüde ilk öğün default açık → "dokun-aç" keşfedilebilir olsun.
   if(plan.length<=1){const first=$('#menuOut .meal');if(first){first.classList.add('open');const fb=first.querySelector('.mbody');if(fb)fb.setAttribute('aria-expanded','true');}}
   $$('#menuOut .swapBtn').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const pr=b.dataset.k.split(':');swapMeal(+pr[0],+pr[1]);});
-  $('#dl').onclick=downloadPlan;$('#wa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(planText()),'_blank');
+  $('#dl').onclick=downloadPlan;$('#wa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(planText(true)),'_blank');
   $('#shop').onclick=openShoppingModal;$('#pdf').onclick=downloadPDF;
   $('#share').onclick=shareMenu;
   $('#ctaDeliver').onclick=openDeliveryModal;
 }
 // ===== PAYLAŞIM: menüyü bağlantı olarak paylaş (veri linkte; sunucuya gitmez) =====
+// Paylaşılan bağlantı kişinin eksikliğini ele vermesin: hedef besinler (n) bağlantıya konmaz (sağlık verisi).
 function encodeShare(){const pl=window.lastPlan;
   // tabak (composite) ise bileşen id'lerini dizi olarak ver; tek tarif ise tek id
   const enc=r=>r.components?r.components.map(c=>c.r.id):r.id;
-  const p={n:window.lastNeeds||[],l:pl.labels,m:pl.plan.map(d=>d.map(([mm,r])=>[mm,enc(r)])),k:window.kcalTarget||0};
+  const p={l:pl.labels,m:pl.plan.map(d=>d.map(([mm,r])=>[mm,enc(r)])),k:window.kcalTarget||0};
   return 'm='+btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+// Uygulamada location.origin "capacitor://localhost" olur; karşı taraf açamaz. Tarayıcı dışında herkese açık web adresi kullanılır.
+const BESINOM_WEB='https://yemekhaneci.com.tr/besinai';
+function shareBase(){try{if(window.Capacitor||!/^https?:$/.test(location.protocol))return BESINOM_WEB;}catch(e){}return location.origin+location.pathname;}
 function shareMenu(){if(!window.lastPlan){toast('Önce menü oluştur.','warn');return;}
-  const url=location.origin+location.pathname+'#'+encodeShare();
+  const url=shareBase()+'#'+encodeShare();
   const txt='Besinom ile oluşturduğum kişisel menü 👇';
   if(navigator.share){navigator.share({title:'Besinom Menüm',text:txt,url}).catch(()=>{});return;}
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).catch(()=>{});
@@ -683,7 +687,7 @@ function shareMenu(){if(!window.lastPlan){toast('Önce menü oluştur.','warn');
   m.querySelector('#shWa').onclick=()=>{window.open('https://wa.me/?text='+encodeURIComponent(txt+'\n'+url),'_blank');m.remove();};}
 // ===== ARACI PAYLAŞ (privacy-safe): yalnızca araç bağlantısı; sağlık verisi paylaşılmaz =====
 function shareApp(){
-  const url='https://yemekhaneci.com.tr/besinai';
+  const url=BESINOM_WEB;
   const txt='Besinom ile ücretsiz, kaynaklı beslenme analizi — verilerin cihazından çıkmıyor. Sen de dene 👇';
   if(navigator.share){navigator.share({title:'Besinom — Kişisel Beslenme Asistanı',text:txt,url}).catch(()=>{});return;}
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).catch(()=>{});
@@ -701,8 +705,9 @@ function loadSharedMenu(){try{const h=location.hash||'';const i=h.indexOf('m=');
       return aggregatePlate(mm,ana.r.mutfak,comp,ana.r);}
     return byId[id]||null;};
   const plan=p.m.map(d=>d.map(([mm,id])=>[mm,rebuild(mm,id)]).filter(x=>x[1])).filter(d=>d.length);
-  if(!plan.length)return;const labels=p.l||plan.map((d,i)=>(i+1)+'. Gün');
-  window.lastNeeds=(p.n||[]).filter(n=>NUTR[n]);if(p.k)window.kcalTarget=p.k;window.lastPlan={plan,labels};
+  if(!plan.length)return;const labels=(Array.isArray(p.l)&&p.l.length===plan.length)?p.l.map(x=>String(x).slice(0,40)):plan.map((d,i)=>(i+1)+'. Gün');
+  // Bağlantıdan gelen her alan güvenilmez: kalori yalnız makul aralıkta bir sayı olarak alınır (aksi halde PDF raporunda HTML olarak basılabiliyordu)
+  window.lastNeeds=(Array.isArray(p.n)?p.n:[]).filter(n=>typeof n==='string'&&NUTR[n]);{const k=Math.round(Number(p.k));if(k>=800&&k<=6000)window.kcalTarget=k;}window.lastPlan={plan,labels};
   try{if(typeof openDetail==='function')openDetail(false);}catch(e){} // B1: paylaşılan menü app-zone içinde — mobilde aç
   unlocked=4;active=4;show();renderMenu(plan,labels);
   const tn=$('#targetNote');if(tn)tn.innerHTML='<div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;padding:10px 13px;color:#0e7490;font-size:13px">📤 Paylaşılan menüyü görüntülüyorsun. Kendi analizini yapmak için yukarıdaki adımlardan başlayabilirsin.</div>';
@@ -848,8 +853,8 @@ function buildReport(){
     <tr><th>Yaş</th><td>${yas||'—'}</td><th>Cinsiyet</th><td>${cins}</td></tr>
     <tr><th>Boy</th><td>${boy||'—'} cm</td><th>Kilo</th><td>${kilo||'—'} kg</td></tr>
     <tr><th>BKİ</th><td>${bmi}</td><th>Hedef</th><td>${HEDEF[hedef]||'—'}</td></tr>
-    <tr><th>Günlük kalori hedefi</th><td colspan="3">${window.kcalTarget?('~'+window.kcalTarget+' kcal'):'—'}</td></tr>
-    <tr><th>Diyet / Alerji / Durum</th><td colspan="3">${[window.diet&&window.diet.size?('Diyet: '+[...window.diet].join(', ')):'',window.allergies&&window.allergies.size?('⚠️ Alerji: '+[...window.allergies].join(', ')):'',window.conditions&&window.conditions.size?('Durum: '+[...window.conditions].join(', ')):'',window.meds&&window.meds.size?('İlaç: '+[...window.meds].join(', ')):''].filter(Boolean).join(' · ')||'—'}</td></tr></table></div>`;
+    <tr><th>Günlük kalori hedefi</th><td colspan="3">${window.kcalTarget?('~'+esc(Math.round(+window.kcalTarget)||'')+' kcal'):'—'}</td></tr>
+    <tr><th>Diyet / Alerji / Durum</th><td colspan="3">${esc([window.diet&&window.diet.size?('Diyet: '+[...window.diet].join(', ')):'',window.allergies&&window.allergies.size?('⚠️ Alerji: '+[...window.allergies].join(', ')):'',window.conditions&&window.conditions.size?('Durum: '+[...window.conditions].join(', ')):'',window.meds&&window.meds.size?('İlaç: '+[...window.meds].join(', ')):''].filter(Boolean).join(' · ')||'—')}</td></tr></table></div>`;
   // İhtiyaçlar
   const needs=window.lastNeeds||[],why=window.lastWhy||{};
   if(needs.length){h+=`<div class="psec"><h2>Olası Beslenme İhtiyaçların</h2><table><tr><th>Besin</th><th>Neden</th><th>Öne çıkan kaynaklar</th></tr>`;
@@ -915,5 +920,6 @@ function openDeliveryModal(){
     try{const tok=(document.querySelector('meta[name="csrf-token"]')||{}).content||'';const res=await fetch('/api/v1/besinai-lead',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':tok,'Accept':'application/json'},body:JSON.stringify(payload)});const out=await res.json();if(!out.ok)throw new Error('lead');if(BESINAI_WA)window.open('https://wa.me/'+BESINAI_WA+'?text='+encodeURIComponent(txt),'_blank');m.innerHTML='<div class="modal"><h2>Talebin alındı</h2><p>Ekibimiz hizmet uygunluğu için seninle iletişime geçecek.</p><button class="btn go" id="dvDone">Kapat</button></div>';m.querySelector('#dvDone').onclick=()=>m.remove();}catch(e){toast('Talep şu anda kaydedilemedi. Lütfen kısa süre sonra yeniden dene.','warn');}
   };
 }
-function planText(){const {plan,labels}=window.lastPlan;let t='Besinom — Kişisel Menü Önerisi\n';if(window.kcalTarget)t+='Kalori hedefi: ~'+window.kcalTarget+' kcal/gün\n';if(window.lastNeeds&&window.lastNeeds.length)t+='Hedef besinler: '+window.lastNeeds.map(n=>NUTR[n]?NUTR[n].ad:n).join(', ')+'\n';t+='\n';plan.forEach((day,i)=>{t+='— '+labels[i]+' —\n';day.forEach(([m,r])=>t+=ML[m]+': '+r.ad+' (~'+r.kcal+' kcal)\n');t+='\n'});t+='Not: Eğitim amaçlı öneri, tıbbi tavsiye değildir. (yemekhaneci.com.tr/besinai)';return t;}
+// forShare=true: WhatsApp gibi üçüncü taraflara giden metin — hedef besinler (eksiklik bilgisi) eklenmez.
+function planText(forShare){const {plan,labels}=window.lastPlan;let t='Besinom — Kişisel Menü Önerisi\n';if(window.kcalTarget)t+='Kalori hedefi: ~'+window.kcalTarget+' kcal/gün\n';if(!forShare&&window.lastNeeds&&window.lastNeeds.length)t+='Hedef besinler: '+window.lastNeeds.map(n=>NUTR[n]?NUTR[n].ad:n).join(', ')+'\n';t+='\n';plan.forEach((day,i)=>{t+='— '+labels[i]+' —\n';day.forEach(([m,r])=>t+=ML[m]+': '+r.ad+' (~'+r.kcal+' kcal)\n');t+='\n'});t+='Not: Eğitim amaçlı öneri, tıbbi tavsiye değildir. (yemekhaneci.com.tr/besinai)';return t;}
 function downloadPlan(){const b=new Blob(['﻿'+planText()],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='besinai-menu.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);}

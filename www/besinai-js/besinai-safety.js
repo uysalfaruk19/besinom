@@ -23,29 +23,57 @@ const BesinSafety=(function(){
   const DEP_UNSAFE_TYPES=['antagonizm','tutarlilik','bilgilendirme'];
 
   // Alerjenler (HARD veto — diyet/sevmediğin'den FARKLI: GÜVENLİK). Tarif/gıda metninde alerjen geçerse tamamen elenir.
+  // Türkiye'de bildirimi zorunlu 14 alerjen (TGK Etiketleme / toplu tüketim alerjen bildirimi) kapsanır.
+  // Liste alt-dize eşleşmesidir (ek alan biçimler: "fındıklı", "sütü"); kısa kelimeler ALLERGEN_WORD ile kelime başı sınırında aranır.
   const ALLERGEN_KW={
-    fistik:['yer fıstığı','yerfıstığı','fıstık ezmesi'],
-    kuruyemis:['fındık','ceviz','badem','antep fıstığı','kaju','kuruyemiş','fıstık'],
-    yumurta:['yumurta'],
-    sut:['süt','peynir','yoğurt','tereyağı','kaymak','lor','kefir','ayran','krema','parmesan','feta','hellim','muhallebi'],
-    balik:['balık','somon','sardalya','ton balığı','uskumru','hamsi','levrek','morina','alabalık'],
-    kabuklu:['karides','midye','istiridye','kalamar','yengeç','ıstakoz'],
-    gluten:['buğday','ekmek','bulgur','makarna','şehriye','arpa','yulaf','galeta','irmik','börek','çavdar','kuskus','mantı','erişte','lazanya','kızartma unu'],
-    susam:['susam','tahin'],
-    soya:['soya'],
+    fistik:['yer fıstığ','yerfıstığ','fıstık ezmesi','fıstık yağı','satay'],
+    kuruyemis:['fındık','ceviz','badem','antep fıstığ','fıstık','fıstığ','kaju','kuruyemiş','pekan','makadamya','macadamia','pesto','pralin','marzipan','nutella'],
+    yumurta:['yumurta','mayonez','omlet','menemen','aioli'],
+    sut:['süt','peynir','yoğurt','tereyağ','kaymak','lor','kefir','ayran','krema','parmesan','feta','hellim','muhallebi','mozzarella','kaşar','çedar','cheddar','labne','ricotta','mascarpone','süzme','beşamel','dondurma','whey','gravyer','kremşanti','laktoz'],
+    balik:['balık','balığ','somon','sardalya','ton balığ','uskumru','hamsi','levrek','morina','alabalık','ançüez','çipura','lüfer','palamut','kalkan','mezgit','istavrit','kefal','sazan','orkinos','havyar','tarama','worcestershire','balık sosu'],
+    kabuklu:['karides','midye','istiridye','kalamar','yengeç','ıstakoz','kerevit','deniz mahsul','deniz ürün'],
+    yumusakca:['midye','istiridye','kalamar','ahtapot','mürekkep balığ','salyangoz','deniz tarağı','deniz mahsul','deniz ürün'],
+    gluten:['buğday','ekmek','bulgur','makarna','şehriye','arpa','yulaf','galeta','irmik','börek','çavdar','kuskus','mantı','erişte','lazanya','kızartma unu','lavaş','yufka','pide','tarhana','simit','bisküvi','kraker','tortilla','soya sos','teriyaki','seitan','kadayıf','baklava','çörek','poğaça','kruton','panko','noodle','nudıl','udon','ramen','spagetti','penne','bazlama','gnocchi','sandviç','pizza','burrito','dürüm','tost'],
+    susam:['susam','tahin','simit','humus','gomasio'],
+    soya:['soya','tofu','edamame','tempeh','tamari','natto','teriyaki','shoyu'],
+    hardal:['hardal','dijon'],
+    kereviz:['kereviz'],
+    lupin:['acı bakla','termiye','lupin'],
+    sulfit:['sülfit','kükürt','kuru kayısı','balzamik','şarap sirkesi'],
   };
+  // Kısa kelimeler: alt-dize olarak aransa "uzun"→"un" gibi yanlış eşleşir; yalnız kelime başında aranır (ekler serbest).
+  const ALLERGEN_WORD={gluten:['un','miso'],soya:['miso'],kuruyemis:[],sut:[]};
+  // Tarif diyet bayrağı → alerjen (bayrak metinden bağımsız ikinci güvenlik ağı; metin eksik kalsa da elenir)
+  const FLAG_ALLERGEN={gluten:['gluten'],dairy:['sut'],egg:['yumurta'],nut:['kuruyemis','fistik']};
   // #3 fix: yanlış-pozitif maskeleri (alt-dize çakışması) — eşleşmeden ÖNCE metinden temizlenir
-  const ALLERGEN_NEG=['karabuğday','istiridye mantarı','hindistan cevizi','bulgursuz','buğdaysız','glutensiz','ekmeksiz','unsuz','sütsüz','yumurtasız','etsiz'];
-  function _allergyText(text,set){let t=' '+String(text||'').toLocaleLowerCase('tr')+' ';
-    ALLERGEN_NEG.forEach(n=>{t=t.split(n).join(' ');}); // karabuğday→buğday, istiridye mantarı→istiridye yanlış eşleşmesini önle
-    for(const a of set){const kws=ALLERGEN_KW[a];if(kws&&kws.some(k=>t.indexOf(k)>=0))return true;}return false;}
+  const ALLERGEN_NEG=['karabuğday','istiridye mantarı','bulgursuz','buğdaysız','glutensiz','ekmeksiz','unsuz','sütsüz','yumurtasız','etsiz'];
+  // Alerjene özel maskeler: yalnız o alerjen sorgulanırken temizlenir (ör. "badem sütü" süt değildir ama badem alerjisi için kalmalı)
+  const ALLERGEN_NEG_BY={
+    sut:['hindistan cevizi sütü','badem sütü','yulaf sütü','soya sütü','pirinç sütü','fındık sütü','kaju sütü','bitkisel süt','vegan peynir','kaju peynir'],
+    kuruyemis:['hindistan cevizi','muskat cevizi','küçük hindistan cevizi'],
+    gluten:['glutensiz soya sosu','glutensiz galeta unu','glutensiz galeta','arpacık','bulgur yerine','bulgur kıvamında','pirinç makarna','mısır makarna','mısır-pirinç unu makarna','kinoa makarna','mercimek makarna','nohut makarna','karabuğday makarna','glutensiz ekmek','glutensiz makarna','glutensiz yulaf','mısır tortilla','mısır unu','pirinç unu','nohut unu','badem unu','hindistan cevizi unu','patates unu','glutensiz un','karabuğday unu','pirinç noodle','pirinç eriştesi','mısır ekmeği (glutensiz)'],
+    yumurta:['vegan mayonez','yumurtasız mayonez'],
+    balik:['balık sosu yerine'],
+  };
+  const _TRW='a-zçğıöşüâîû0-9';
+  const _wordRe={};
+  function _wordHit(t,w){const re=_wordRe[w]||(_wordRe[w]=new RegExp('(^|[^'+_TRW+'])'+w,'i'));return re.test(t);}
+  function _allergyText(text,set){const base=' '+String(text||'').toLocaleLowerCase('tr')+' ';
+    for(const a of set){let t=base;(ALLERGEN_NEG_BY[a]||[]).forEach(n=>{t=t.split(n).join(' ');}); // önce alerjene özel maske ("glutensiz soya sosu"), sonra genel
+      ALLERGEN_NEG.forEach(n=>{t=t.split(n).join(' ');}); // karabuğday→buğday, istiridye mantarı→istiridye yanlış eşleşmesini önle
+      const kws=ALLERGEN_KW[a];if(kws&&kws.some(k=>t.indexOf(k)>=0))return true;
+      const ws=ALLERGEN_WORD[a];if(ws&&ws.some(w=>_wordHit(t,w)))return true;}
+    return false;}
   // — HELAL filtresi (HER ZAMAN aktif, varsayılan — Türkiye): domuz/alkol içeren tarif/besin asla önerilmez —
   // NOT: kısa/Türkçe-eke çakışan kelimeler (rakı→"bırakın", mirin→"demirin", rom→...) ELENDİ — JS \b Türkçe ı/ş tanımaz, false-positive yapar. Sadece net, çakışmasız haram kelimeler:
   const HARAM_RE=/domuz|jambon|\bbacon\b|prosciutto|chorizo|pancetta|salam[^.]{0,20}domuz|sucuk[^.]{0,20}domuz|şarap|votka|viski|likör|brendi|konyak|şampanya|\bcin\b ?\(içki\)/i;
   function isHalalText(t){return !HARAM_RE.test(String(t||''));}
   function recipeHalal(r){if(!r)return true;return isHalalText((r.ad||'')+' '+((r.mlz||[]).join(' '))+' '+((r.adimlar||[]).join(' ')));}
   function foodAllergic(name,allergies){const s=allergies instanceof Set?allergies:new Set(allergies||[]);if(!s.size)return false;return _allergyText(name,s);}
-  function recipeAllergic(r,allergies){const s=allergies instanceof Set?allergies:new Set(allergies||[]);if(!s.size||!r)return false;return _allergyText((r.ad||'')+' '+((r.mlz||[]).join(' ')),s);}
+  function recipeAllergic(r,allergies){const s=allergies instanceof Set?allergies:new Set(allergies||[]);if(!s.size||!r)return false;
+    if(flagAllergic(r,s))return true; // bayrak ağı: metin eşleşmese de diyet bayrağı alerjeni işaret ediyorsa elenir
+    return _allergyText((r.ad||'')+' '+((r.mlz||[]).join(' '))+' '+(Array.isArray(r.components)?r.components.map(c=>c&&c.r?(c.r.ad||'')+' '+((c.r.mlz||[]).join(' ')):'').join(' '):''),s);}
+  function flagAllergic(r,s){const fl=(r&&r.f)||[];for(const f of fl){const as=FLAG_ALLERGEN[f];if(as&&as.some(a=>s.has(a)))return true;}return false;}
   function blocksAuto(n){return NEVER_AUTO.indexOf(n)>=0;}
   // food = [ad, miktar, %DV, kaynak]
   function foodOK(n,food){if(!UL_RISK[n])return true;if(((food&&food[2])||0)>=200)return false;return !UL_FOOD_RE.test((food&&food[0])||'');}
@@ -69,6 +97,6 @@ const BesinSafety=(function(){
     {id:'recipe-veto',desc:'KBH: yüksek K/P tarifleri; varfarin: yüksek K-vit; gebelik: sakatat/ciğer tarifleri elenir.'},
     {id:'dep-unsafe',desc:'Potasyum + antagonizm/tutarlılık/bilgilendirme tipi ilaç-besin etkisinde oto-takviye önerilmez.'}
   ];
-  return{NEVER_AUTO,UL_RISK,HIGH_RISK_CONDS,RECIPE_VETO,DEP_UNSAFE_TYPES,ALLERGEN_KW,RULES,blocksAuto,foodOK,highRiskProfile,depSafe,recipeVeto,gateNutrients,foodAllergic,recipeAllergic,recipeHalal,isHalalText};
+  return{ALLERGEN_WORD,FLAG_ALLERGEN,flagAllergic,NEVER_AUTO,UL_RISK,HIGH_RISK_CONDS,RECIPE_VETO,DEP_UNSAFE_TYPES,ALLERGEN_KW,RULES,blocksAuto,foodOK,highRiskProfile,depSafe,recipeVeto,gateNutrients,foodAllergic,recipeAllergic,recipeHalal,isHalalText};
 })();
 try{window.BesinSafety=BesinSafety;}catch(e){}
