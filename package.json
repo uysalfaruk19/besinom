@@ -14,14 +14,14 @@
     "bicim": "npx --yes prettier@3.3.3 --check ."
   },
   "dependencies": {
-    "@capacitor/core": "^7.0.0",
-    "@capacitor/filesystem": "^7.0.0",
-    "@capacitor/ios": "^7.0.0",
-    "@capacitor/local-notifications": "^7.0.0",
-    "@capacitor/share": "^7.0.0"
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/ios": "^8.6.2",
+    "@capacitor/local-notifications": "^8.3.1",
+    "@capacitor/share": "^8.0.3"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.0.0",
-    "@capacitor/assets": "^3.0.5"
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/assets": "^4.0.0"
   }
 }
