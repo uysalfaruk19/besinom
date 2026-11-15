@@ -16,7 +16,7 @@ Besinom bir sağlık uygulamasıdır. Bu yüzden üç kural pazarlığa açık d
 - **Tarif.** `www/besinai-data/tarifler.txt` içine yeni tarif. Mevcut bir tarifin alanlarını örnek alın; besin değerlerini hesapladığınız kaynağı değişiklik açıklamasına yazın. Başka bir siteden ya da kitaptan kopyalanmış tarif metni kabul edilmez.
 - **Kaynak güncellemesi.** Ölü bağlantı, güncellenen kılavuz, daha iyi birincil kaynak.
 - **Çeviri.** Arayüz şu an yalnız Türkçe.
-- **Test ve denetim.** `scripts/kontrol.mjs` denetimlerini genişletmek.
+- **Test ve denetim.** `tests/` altındaki testleri ve `scripts/kontrol.mjs` denetimlerini genişletmek.
 
 Büyük bir değişikliğe (yeni modül, mimari değişiklik, yeni bağımlılık) başlamadan önce bir konu (issue) açıp fikri tartışın; emeğiniz boşa gitmesin.
 
@@ -24,7 +24,7 @@ Büyük bir değişikliğe (yeni modül, mimari değişiklik, yeni bağımlılı
 
 1. Depoyu çatallayın, `main` üzerinden yeni bir dal açın.
 2. Değişikliği yapın ve tarayıcıda deneyin: `npx serve www`.
-3. Denetimi çalıştırın: `npm run kontrol`. Kaynak tablosuna dokunduysanız `npm run link-kontrol` da çalıştırın.
+3. Denetimi ve testleri çalıştırın: `npm run kontrol` ve `npm test`. Analiz motoruna ya da güvenlik kurallarına dokunduysanız `tests/` altına davranışı gösteren bir test ekleyin. Kaynak tablosuna dokunduysanız `npm run link-kontrol` da çalıştırın.
 4. Çekme isteği (pull request) açın. Açıklamada ne değiştiğini, neden değiştiğini, nasıl denediğinizi ve sağlık bilgisi içeriyorsa kaynağını yazın.
 
 ## Değişiklik nasıl yayına girer

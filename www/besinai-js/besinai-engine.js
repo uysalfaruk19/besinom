@@ -80,14 +80,17 @@ function runAnalyze(){
    const crpHigh=crp!=null&&crp>=3, crpVeryHigh=crp!=null&&crp>=10;
    const feSt=fe!=null?labStatus(LABBYKEY.ferritin,fe,p):null;
    const hbSt=hb!=null?labStatus(LABBYKEY.hemoglobin,hb,p):null;
+   // 'kritik' iki yönlüdür: ferritin ≤10 da kritiktir. Yüksek/düşük kararı referans aralığına göre verilir.
+   const feHigh=feSt==='yuksek'||(feSt==='kritik'&&fe>LABBYKEY.ferritin.ref(p)[1]);
+   const hbLow=hbSt==='dusuk'||(hbSt==='kritik'&&hb<LABBYKEY.hemoglobin.ref(p)[0]);
    // KURAL 1: ferritin yüksek/normal AMA CRP yüksek → ferritin yanıltıcı, demir eksikliği dışlanamaz
-   if(fe!=null&&crpHigh&&(feSt==='normal'||feSt==='yuksek'||feSt==='kritik')){
+   if(fe!=null&&crpHigh&&(feSt==='normal'||feHigh)){
      safety.push({icon:'⚠️',title:'CRP yüksek → ferritin yanıltıcı olabilir',body:'CRP yüksek (inflamasyon var). İnflamasyon ferritini gerçek demir deposundan daha yüksek gösterir; bu yüzden yüksek/normal ferritine bakarak demir eksikliği dışlanamaz. Demir durumunu netleştirmek için inflamasyon geçtikten sonra tekrar ölçüm veya transferrin satürasyonu gerekebilir — hekime danış.',src:'who_ferritin'});}
    // KURAL 2: ferritin yüksek + CRP normal → gerçek demir yükü olasılığı
-   if(fe!=null&&(feSt==='yuksek'||feSt==='kritik')&&crp!=null&&crp<3){
+   if(fe!=null&&feHigh&&crp!=null&&crp<3){
      safety.push({icon:'⚠️',title:'Ferritin yüksek + CRP normal',body:'CRP normal olduğundan ferritin yüksekliği inflamasyona bağlı görünmüyor; demir yükü (aşırı demir birikimi/hemokromatoz vb.) veya karaciğer yağlanması olasılığı öne çıkar. Demir takviyesi alma; demir paneli/transferrin satürasyonu için hekime başvur.',src:'who_ferritin'});}
    // KURAL 3: ferritin↑ + hemoglobin↓ çelişki — CRP ile 'olabilir'→'doğrulandı'
-   if((feSt==='yuksek'||feSt==='kritik')&&(hbSt==='dusuk'||hbSt==='kritik')){
+   if(feHigh&&hbLow){
      suppress.add('demir');delete labFor['demir'];
      if(crpHigh){safety.push({icon:'⚠️',title:'Ferritin yüksek + hemoglobin düşük + CRP yüksek',body:(crpVeryHigh?'Belirgin inflamasyon doğrulandı':'İnflamasyon doğrulandı')+': bu tablo basit demir eksikliği değil, inflamasyon/kronik hastalık anemisidir. Ferritin inflamasyon nedeniyle yanıltıcı yüksek — altta demir eksikliği yine de gizli olabilir. Kendi başına demir takviyesi uygulama; nedene yönelik değerlendirme için hekime başvur.',src:'ash'});}
      else if(crp!=null){safety.push({icon:'⚠️',title:'Ferritin yüksek + hemoglobin düşük (CRP normal)',body:'CRP normal olmasına rağmen ferritin yüksek + hemoglobin düşük — inflamasyon dışı bir neden (kronik hastalık, demir yükü, kemik iliği) söz konusu olabilir. Kendi başına demir takviyesi uygulama; demir paneli için hekime başvur.',src:'ash'});}

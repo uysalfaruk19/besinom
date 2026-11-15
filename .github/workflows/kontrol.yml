@@ -14,3 +14,4 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/kontrol.mjs
+      - run: node --test tests/*.test.mjs
