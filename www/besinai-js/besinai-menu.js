@@ -889,6 +889,8 @@ function buildReport(){
 // Teslimat lead — "kandan tabağa": analizden gerçek yemek teslimatına köprü (FREE, herkes)
 const BESINAI_WA=(document.body.dataset.besinaiWa||'').replace(/\D/g,'');
 function openDeliveryModal(){
+  // iOS uygulamasında sunucu/CSRF yok: form gösterip bilgileri atmak yerine doğrudan sitedeki formu aç (kullanıcı iki kez doldurmasın).
+  if(window.Capacitor){window.open('https://yemekhaneci.com.tr/besinai','_blank');return;}
   const m=document.createElement('div');m.className='ov';m.style.zIndex='60';
   const ppl=window.lastPlan?window.lastPlan.plan.length:7;
   m.innerHTML=`<div class="modal"><h2>🍽 Sağlıklı menünü kapına getirelim</h2>
@@ -908,7 +910,6 @@ function openDeliveryModal(){
     const name=g('#dvName');if(!name){toast('Lütfen adını gir.','warn');return;}
     const phone=g('#dvPhone').replace(/[^0-9]/g,'');if(phone.length<10){toast('Lütfen geçerli bir telefon gir.','warn');return;}
     if(!m.querySelector('#dvKvkk').checked){toast('Devam için onay kutusunu işaretle.','warn');return;}
-    if(window.Capacitor){window.open('https://yemekhaneci.com.tr/besinai','_blank');m.innerHTML='<div class="modal"><h2>Web formuna yönlendiriyoruz</h2><p>Teslimat talebini güvenli formda tamamlaman için site açıldı.</p><button class="btn go" id="dvDone">Kapat</button></div>';m.querySelector('#dvDone').onclick=()=>m.remove();return;} // App'te sunucu/CSRF yok → güvenli web formuna yönlendir
     let txt=`Merhaba, Besinom menümü pişirip getirmenizi istiyorum.\n\nAd: ${name}\nTelefon: ${g('#dvPhone')}\nAdres: ${g('#dvAddr')}\nKişi: ${g('#dvPpl')} · Gün: ${g('#dvDays')}\n`;
     const payload=BesinV4.leadPayload({ad:name,telefon:g('#dvPhone'),ilce_adres:g('#dvAddr'),kisi_sayisi:g('#dvPpl'),gun_sayisi:g('#dvDays'),kvkk_onay:true});
     try{const tok=(document.querySelector('meta[name="csrf-token"]')||{}).content||'';const res=await fetch('/api/v1/besinai-lead',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':tok,'Accept':'application/json'},body:JSON.stringify(payload)});const out=await res.json();if(!out.ok)throw new Error('lead');if(BESINAI_WA)window.open('https://wa.me/'+BESINAI_WA+'?text='+encodeURIComponent(txt),'_blank');m.innerHTML='<div class="modal"><h2>Talebin alındı</h2><p>Ekibimiz hizmet uygunluğu için seninle iletişime geçecek.</p><button class="btn go" id="dvDone">Kapat</button></div>';m.querySelector('#dvDone').onclick=()=>m.remove();}catch(e){toast('Talep şu anda kaydedilemedi. Lütfen kısa süre sonra yeniden dene.','warn');}

@@ -371,8 +371,9 @@ window.skinGoal=window.skinGoal||'';
 {const ht=$('#healthToggle');if(ht){let on=false;try{on=localStorage.getItem('besinai_health')==='1';}catch(e){}ht.checked=on;ht.onchange=async()=>{try{localStorage.setItem('besinai_health',ht.checked?'1':'0');}catch(e){}if(ht.checked&&typeof syncHealth==='function'){try{await syncHealth();}catch(e){}}};}}
 try{if(localStorage.getItem('besinai_health')==='1'&&typeof syncHealth==='function')syncHealth();}catch(e){}
 // PWA: service worker kaydı (ana ekrana kurulabilirlik + çevrimdışı kabuk)
+// Sitede uygulama /besinai altında, yerel geliştirmede kökte (/) çalışır; kapsam buna göre seçilir.
 // SW yalnız web PWA için; Capacitor'da asset'ler zaten gömülü (offline çalışır), kayıt gereksiz + scope yanlış olur
-if('serviceWorker'in navigator&&!window.Capacitor)window.addEventListener('load',()=>{navigator.serviceWorker.register('/besinai-sw.js',{scope:'/besinai'}).catch(()=>{});});
+if('serviceWorker'in navigator&&!window.Capacitor)window.addEventListener('load',()=>{navigator.serviceWorker.register('/besinai-sw.js',{scope:location.pathname.startsWith('/besinai')?'/besinai':'/'}).catch(()=>{});});
 // ===== ERİŞİLEBİLİRLİK (a11y): chip'ler klavye + ekran-okuyucu erişilebilir =====
 $$('.chip').forEach(c=>{c.setAttribute('role','button');c.setAttribute('tabindex','0');c.setAttribute('aria-pressed',c.classList.contains('on')?'true':'false');});
 document.addEventListener('keydown',e=>{const c=e.target&&e.target.closest&&e.target.closest('.chip');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();c.click();}});

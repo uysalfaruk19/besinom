@@ -49,6 +49,15 @@ for (const m of html.matchAll(/<(script|link)\b[^>]*(?:src|href)="(https?:\/\/[^
   if (m[1].toLowerCase() === 'script' || /rel="stylesheet"/i.test(m[0])) hata(`index.html: dış kaynaktan yükleme: ${m[2]}`);
 }
 
+// 5) Çevrimdışı önbellek listesi: besinai-sw.js içindeki her dosya mevcut
+const sw = fs.readFileSync(path.join(KOK, 'besinai-sw.js'), 'utf8');
+try { new vm.Script(sw, { filename: 'besinai-sw.js' }); } catch (e) { hata(`sözdizimi: besinai-sw.js: ${e.message}`); }
+const swListe = (sw.match(/const DOSYALAR = \[([\s\S]*?)\];/) || [])[1];
+if (!swListe) hata('besinai-sw.js: DOSYALAR listesi bulunamadı');
+else for (const m of swListe.matchAll(/'([^']+)'/g)) if (!fs.existsSync(path.join(KOK, m[1]))) hata(`besinai-sw.js: dosya yok: ${m[1]}`);
+// index.html'deki her yerel betik ve stil çevrimdışı listede de olmalı
+for (const b of new Set(basvurular)) if (/\.(js|css)$/.test(b) && swListe && !swListe.includes(`'${b}'`)) hata(`besinai-sw.js: listede eksik: ${b}`);
+
 console.log(`${jsler.length} JS dosyası, ${tarifler.length} tarif, ${new Set(basvurular).size} yerel başvuru denetlendi.`);
 if (hatalar.length) { console.error(`\n${hatalar.length} hata:\n- ` + hatalar.join('\n- ')); process.exit(1); }
 console.log('Temiz.');
