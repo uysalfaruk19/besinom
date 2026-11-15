@@ -822,7 +822,7 @@ function downloadShopping(){
   const byCat=buildShoppingList();
   let csv='Kategori;Malzeme;Tarif sayısı\r\n';
   SHOP_ORDER.forEach(c=>{(byCat[c]||[]).sort((a,b)=>a.name.localeCompare(b.name,'tr')).forEach(it=>{csv+=`${c};${it.name};${it.n*mult}\r\n`;});});
-  const b=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='besinai-alisveris-listesi.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);
+  BesinV4.saveTextFile('besinai-alisveris-listesi.csv','text/csv;charset=utf-8','﻿'+csv).catch(()=>toast('Dosya kaydedilemedi.','warn'));
 }
 // ===== TARİF ARAMA & FİLTRE (tüm korpus: ad/malzeme/mutfak/besin/etiket) =====
 function renderRecipeSearch(){const el=document.getElementById('recipeSearch');if(!el)return;
@@ -930,4 +930,4 @@ function openDeliveryModal(){
 }
 // forShare=true: WhatsApp gibi üçüncü taraflara giden metin — hedef besinler (eksiklik bilgisi) eklenmez.
 function planText(forShare){const {plan,labels}=window.lastPlan;let t='Besinom — Kişisel Menü Önerisi\n';if(window.kcalTarget)t+='Kalori hedefi: ~'+window.kcalTarget+' kcal/gün\n';if(!forShare&&window.lastNeeds&&window.lastNeeds.length)t+='Hedef besinler: '+window.lastNeeds.map(n=>NUTR[n]?NUTR[n].ad:n).join(', ')+'\n';t+='\n';plan.forEach((day,i)=>{t+='— '+labels[i]+' —\n';day.forEach(([m,r])=>t+=ML[m]+': '+r.ad+' (~'+r.kcal+' kcal)\n');t+='\n'});t+='Not: Eğitim amaçlı öneri, tıbbi tavsiye değildir. (yemekhaneci.com.tr/besinai)';return t;}
-function downloadPlan(){const b=new Blob(['﻿'+planText()],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='besinai-menu.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);}
+function downloadPlan(){BesinV4.saveTextFile('besinai-menu.txt','text/plain;charset=utf-8','﻿'+planText()).catch(()=>toast('Dosya kaydedilemedi.','warn'));}

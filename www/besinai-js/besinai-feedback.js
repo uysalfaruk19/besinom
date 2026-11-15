@@ -8,9 +8,7 @@ function lsGet(){try{return JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e
 function lsSet(s){if(!storageEnabled())return false;try{localStorage.setItem(LS_KEY,JSON.stringify(s));return true}catch(e){return false}}
 // #18 veri taşınabilirliği (KVKK): tüm veriyi tek JSON indir / geri yükle — cihazda kalır felsefesiyle uyumlu
 function exportData(){try{const payload={_app:'besinai',_schema:1,_exportedAt:new Date().toISOString(),state:lsGet()};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='besinai-verilerim-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();
-  setTimeout(()=>{try{URL.revokeObjectURL(url);a.remove();}catch(e){}},100);return true;}catch(e){return false;}}
+  BesinV4.saveTextFile('besinai-verilerim-'+new Date().toISOString().slice(0,10)+'.json','application/json',JSON.stringify(payload,null,2)).catch(()=>{try{toast('Dosya kaydedilemedi.','warn');}catch(e){}});return true;}catch(e){return false;}}
 function importData(text){try{const obj=JSON.parse(text);
   const st=(obj&&obj.state&&typeof obj.state==='object'&&!Array.isArray(obj.state))?obj.state:((obj&&typeof obj==='object'&&!Array.isArray(obj))?obj:null);
   if(!st)return false;
