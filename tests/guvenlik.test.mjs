@@ -63,3 +63,19 @@ test('helal filtresi domuz ve alkolü eler, Türkçe eklerde yanılmaz', () => {
   assert.ok(S.isHalalText('Pişince ocaktan alıp dinlenmeye bırakın'));
   assert.ok(S.isHalalText('demirin emilimi için limon'));
 });
+
+test('riskli durumlarda keto, aralıklı oruç ve yüksek protein menüsü kilitlenir', () => {
+  for (const d of ['gebelik', 'emzirme', 'diyabet', 'bariatrik', 'yemebozuklugu']) {
+    assert.ok(!S.programCheck('keto', [d]).ok, 'keto ' + d);
+    assert.ok(!S.programCheck('if', [d]).ok, 'if ' + d);
+  }
+  assert.ok(!S.programCheck('protein', ['bobrek']).ok);
+  assert.ok(S.programCheck('keto', ['vegan']).ok);
+  assert.ok(S.programCheck('standart', ['gebelik']).ok);
+});
+
+test('kural metni kilit, alerjen ve MAOI kurallarını anlatır', () => {
+  const ids = S.RULES.map((r) => r.id);
+  for (const id of ['program-lock', 'allergen', 'halal', 'recipe-veto']) assert.ok(ids.includes(id), id);
+  assert.ok(S.RULES.find((r) => r.id === 'recipe-veto').desc.includes('MAOI'));
+});

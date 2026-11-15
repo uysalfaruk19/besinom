@@ -19,6 +19,14 @@ const BesinSafety=(function(){
     gebelik:{re:/karaciğer|ciğer|sakatat|işkembe|kılıç balığı|köpek balığı|orfoz|çiğ balık|suşi|çiğ köfte|çiğ et|çiğ yumurta|pastörize edilmemiş|çiğ süt|füme somon/i}, // klinik denetim: sakatat + yüksek-cıva balık + çiğ/pastörize-olmayan (Listeria/toksoplazma/cıva) gebelik vetosu
     maoi:{re:/eski kaşar|tulum peynir|olgun peynir|eski peynir|fermente|salam|sucuk|pastırma|soya sos|miso\b|natto|tempeh|turşu|şalgam|füme|tütsülenmiş|sosis|\bbakla\b|\bfava\b|fıçı bira/i} // MAOI + tiramin → hipertansif kriz (klinik denetim, ölümcül etkileşim)
   };
+  // — Beslenme programı kilidi: bu durumlarda keto / aralıklı oruç / yüksek protein menüsü ÜRETİLMEZ, standart menüye dönülür.
+  // Yalnız uyarı yetmiyordu: uyarı okunmadan geçilebilir (diyabette hipoglisemi, gebelik/emzirmede yetersiz alım, KBH'de protein yükü).
+  const PROGRAM_LOCK={
+    keto:{gebelik:'gebelik',emzirme:'emzirme',diyabet:'diyabet (insülin/şeker ilacıyla hipoglisemi ve ketoasidoz riski)',bobrek:'böbrek hastalığı',bariatrik:'bariatrik cerrahi sonrası',yemebozuklugu:'yeme bozukluğu öyküsü',gout:'gut (ürik asit yükselebilir)'},
+    if:{gebelik:'gebelik',emzirme:'emzirme',diyabet:'diyabet (insülin/şeker ilacıyla hipoglisemi riski)',bariatrik:'bariatrik cerrahi sonrası',yemebozuklugu:'yeme bozukluğu öyküsü'},
+    protein:{bobrek:'böbrek hastalığı (protein yükü)'}
+  };
+  function programCheck(prog,conds){const s=conds instanceof Set?conds:new Set(conds||[]);const L=PROGRAM_LOCK[prog]||{};const reasons=Object.keys(L).filter(c=>s.has(c)).map(c=>L[c]);return{ok:!reasons.length,reasons};}
   // — İlaç-besin tükenişinde oto-takviye GÜVENLİ DEĞİL: potasyum + bu etki tipleri —
   const DEP_UNSAFE_TYPES=['antagonizm','tutarlilik','bilgilendirme'];
 
@@ -92,11 +100,14 @@ const BesinSafety=(function(){
   // İnsan-okur + AI-okur kural kaydı (AI'a "geçemeyeceğin sınırlar" olarak verilebilir).
   const RULES=[
     {id:'never-auto',desc:'Potasyum asla otomatik önerilmez (KBH/ACE-inhibitör riski).'},
-    {id:'ul-risk',desc:'A vitamini & selenyumda sakatat/Brezilya cevizi/%DV≥200 kaynaklar günlük öneriden çıkar (UL toksisite).'},
-    {id:'high-risk-profile',desc:'Gebelik/böbrek/varfarin profilinde otomatik menü üretilmez — karar hekimde.'},
-    {id:'recipe-veto',desc:'KBH: yüksek K/P tarifleri; varfarin: yüksek K-vit; gebelik: sakatat/ciğer tarifleri elenir.'},
+    {id:'ul-risk',desc:'A vitamini, selenyum, demir ve çinkoda sakatat/Brezilya cevizi/istiridye ve %DV≥200 kaynaklar günlük öneriden çıkar (üst sınır toksisitesi).'},
+    {id:'high-risk-profile',desc:'Gebelik/böbrek/varfarin profilinde kırmızı güvenlik bandı gösterilir; bebek/çocuk profilinde otomatik menü üretilmez, karar çocuk doktorunda.'},
+    {id:'recipe-veto',desc:'KBH: yüksek K/P tarifleri; varfarin: yüksek K vitamini; gebelik: sakatat, yüksek cıvalı balık, çiğ ve pastörize edilmemiş ürünler; MAOI: tiraminli gıdalar elenir.'},
+    {id:'allergen',desc:'14 alerjenden seçilenleri içeren tarif ve besinler tamamen elenir; malzeme metni ve tarif diyet bayrağı birlikte denetlenir.'},
+    {id:'halal',desc:'Domuz ve alkol içeren tarifler hiçbir zaman önerilmez.'},
+    {id:'program-lock',desc:'Gebelik, emzirme, diyabet, böbrek, bariatrik cerrahi ve yeme bozukluğu öyküsünde keto ve aralıklı oruç; böbrek hastalığında yüksek protein menüsü üretilmez.'},
     {id:'dep-unsafe',desc:'Potasyum + antagonizm/tutarlılık/bilgilendirme tipi ilaç-besin etkisinde oto-takviye önerilmez.'}
   ];
-  return{ALLERGEN_WORD,FLAG_ALLERGEN,flagAllergic,NEVER_AUTO,UL_RISK,HIGH_RISK_CONDS,RECIPE_VETO,DEP_UNSAFE_TYPES,ALLERGEN_KW,RULES,blocksAuto,foodOK,highRiskProfile,depSafe,recipeVeto,gateNutrients,foodAllergic,recipeAllergic,recipeHalal,isHalalText};
+  return{PROGRAM_LOCK,programCheck,ALLERGEN_WORD,FLAG_ALLERGEN,flagAllergic,NEVER_AUTO,UL_RISK,HIGH_RISK_CONDS,RECIPE_VETO,DEP_UNSAFE_TYPES,ALLERGEN_KW,RULES,blocksAuto,foodOK,highRiskProfile,depSafe,recipeVeto,gateNutrients,foodAllergic,recipeAllergic,recipeHalal,isHalalText};
 })();
 try{window.BesinSafety=BesinSafety;}catch(e){}

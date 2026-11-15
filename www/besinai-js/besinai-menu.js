@@ -294,6 +294,8 @@ function highRiskNote(){
 }
 // Beslenme programı bilgi/güvenlik notu — keto/IF tıbbi diyet → durum-duyarlı uyarı; protein → bilgi
 function programNote(){
+  const lk=window.__programLocked;if(lk){const PN={keto:'Ketojenik',if:'Aralıklı oruç',protein:'Yüksek protein'};
+    return `<div style="margin:0 0 12px;padding:11px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#991b1b;font-size:13px;line-height:1.6">🔒 <b>${esc(PN[lk.prog]||lk.prog)} menüsü senin durumunda üretilmedi</b> (${esc(lk.reasons.join(', '))}). Bunun yerine standart dengeli menü hazırlandı. Bu programı düşünüyorsan önce hekimin veya diyetisyeninle konuş.</div>`;}
   const prog=window.menuProgram||'standart';if(prog==='standart')return'';
   const c=window.conditions||new Set();
   const box=(bg,bd,col,html)=>`<div style="margin:0 0 12px;padding:11px 14px;background:${bg};border:1px solid ${bd};border-radius:12px;color:${col};font-size:13px;line-height:1.6">${html}</div>`;
@@ -385,7 +387,13 @@ function skinNote(){
   const t=M[g];if(!t)return'';
   return `<div style="margin:0 0 12px;padding:11px 14px;background:#fff1f2;border:1px solid #fecdd3;border-radius:12px;color:#9f1239;font-size:13px;line-height:1.6">🧴 ${t} <span style="opacity:.85">Bu beslenme desteğidir; sorun sürerse dermatoloğa danış.</span></div>`;
 }
+// Program kilidi: riskli durumda keto/oruç/yüksek protein seçili kalmışsa standart menüye dön (bkz. BesinSafety.PROGRAM_LOCK).
+function enforceProgramLock(){window.__programLocked=null;const prog=window.menuProgram||'standart';if(prog==='standart')return;
+  const chk=BesinSafety.programCheck(prog,window.conditions||new Set());if(chk.ok)return;
+  window.__programLocked={prog,reasons:chk.reasons};window.menuProgram='standart';
+  try{$$('#menuProgram button').forEach(b=>b.classList.toggle('on',(b.dataset.prog||'standart')==='standart'));}catch(e){}}
 function genMenu(){
+  enforceProgramLock();
   window.__favs=(typeof getFavs==='function')?getFavs():{}; // favori tariflerini seçim öncesi yükle
   // Çocuk/bebek: enerji-besin ihtiyacı yaşa göre çok değişir → genel yetişkin menüsü uygun değil, üretmiyoruz (klinik).
   if((window.conditions||new Set()).has('cocuk')){$('#menuOut').innerHTML='<div class="menu-safety-stop"><b>Çocuk/bebek için otomatik menü üretmiyoruz.</b><br>Çocuklarda enerji ve besin ihtiyaçları yaşa göre çok değişir; menüyü çocuk doktoru/diyetisyeni planlamalı. Analizindeki genel bilgileri uzmanına gösterebilirsin.</div>';$('#targetNote').innerHTML='';return;}

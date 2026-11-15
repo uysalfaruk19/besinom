@@ -167,7 +167,8 @@ function calcKcal(){
   let target=tdee+(hedef==='ver'?-500:hedef==='al'?400:0);
   // #30 kötüye-kullanım/güvenlik: düşük BKİ'de kilo verme DURDUR + güvenli kalori tabanı (yeme bozukluğu riski)
   const bmiV=kg/((boy/100)**2);const floor=(c==='e')?1500:1200;let warn='';
-  if(hedef==='ver'&&bmiV<18.5){target=tdee;warn='⚠️ Vücut kitle indeksin zaten düşük; kilo verme önerilmez — hedef korumaya alındı. Kilo kaybını düşünüyorsan hekim/diyetisyenle görüş.';}
+  if(hedef==='ver'&&window.conditions&&window.conditions.has('yemebozuklugu')){target=tdee;warn='⚠️ Yeme bozukluğu öyküsünde kalori açığı hedeflemiyoruz; hedef korumaya alındı. Kilo hedefini tedavi ekibinle belirle.';}
+  else if(hedef==='ver'&&bmiV<18.5){target=tdee;warn='⚠️ Vücut kitle indeksin zaten düşük; kilo verme önerilmez — hedef korumaya alındı. Kilo kaybını düşünüyorsan hekim/diyetisyenle görüş.';}
   if(target<floor){target=floor;warn=(warn?warn+'<br>':'')+`⚠️ Çok düşük kalorili plan sağlıksız olabilir; güvenli alt sınıra (${floor} kcal) çekildi. Kısıtlı/özel diyet için uzmana danış.`;}
   window.kcalTarget=target;
   const lbl=hedef==='ver'?'kilo vermek (~0.5 kg/hafta)':hedef==='al'?'kilo almak':'kiloyu korumak';
