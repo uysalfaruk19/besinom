@@ -69,6 +69,11 @@ $$('#sympCommon .symp-quick').forEach(qc=>{qc.onclick=()=>{const rc=document.que
   const parts=[];if(nS)parts.push(nS+' belirti');if(nM)parts.push(nM+' ilaç');if(nL)parts.push(nL+' tahlil değeri');
   if(msg)msg.innerHTML=parts.length?('✓ '+parts.join(', ')+' işaretlendi — kontrol et, gerekirse düzelt.'+(res.source==='ai'?'':' <span style="color:#475569">(anahtar-kelime eşleştirme)</span>')):'Net bir belirti yakalanamadı — aşağıdan elle seçebilirsin.';
 };}
+// Tahlil metni yapıştır → değerleri doldur (parseLabReport, cihazda)
+{const go=$('#labPasteGo');if(go)go.onclick=()=>{const inp=$('#labPaste'),msg=$('#labPasteMsg');const vals=parseLabReport(inp?inp.value:'');const got=[];
+  Object.keys(vals).forEach(k=>{const li=document.querySelector('[data-lab="'+k+'"]');if(!li)return;li.value=vals[k];if(typeof updateLab==='function'){try{updateLab(k);}catch(e){}}const L=LABBYKEY[k];got.push(esc((L?L.label:k)+' '+vals[k]+(L?' '+L.unit:'')));});
+  if(got.length){try{const w=$('#labsIleriWrap');if(w&&got.length)w.open=true;}catch(e){}}
+  if(msg)msg.innerHTML=got.length?('✓ '+got.length+' değer dolduruldu: '+got.join(', ')+'. Birimleri ve değerleri kontrol et.'):'Tanıdık bir tahlil adı bulunamadı. Satırların "Ferritin 12" gibi ad ve değer içerdiğinden emin ol ya da değerleri elle gir.';};}
 {const ss=$('#sympSearch');if(ss)ss.oninput=()=>{const q=ss.value.toLocaleLowerCase('tr').trim();const toks=q.split(/\s+/).filter(Boolean);$$('#symps .sympgrp').forEach(d=>{let any=false;d.querySelectorAll('.chip').forEach(c=>{const hay=(c.dataset.search||c.dataset.name||'');const m=!q||toks.every(t=>hay.indexOf(t)>=0);c.style.display=m?'':'none';if(m&&q)any=true;});d.open=q?true:false;d.style.display=(q&&!any)?'none':'';});};}
 // Beslenme alışkanlıkları (lab-less hızlı mod): tek-seçim frekans satırları
 window.habits=window.habits||{};
@@ -167,7 +172,8 @@ function calcKcal(){
   let target=tdee+(hedef==='ver'?-500:hedef==='al'?400:0);
   // #30 kötüye-kullanım/güvenlik: düşük BKİ'de kilo verme DURDUR + güvenli kalori tabanı (yeme bozukluğu riski)
   const bmiV=kg/((boy/100)**2);const floor=(c==='e')?1500:1200;let warn='';
-  if(hedef==='ver'&&bmiV<18.5){target=tdee;warn='⚠️ Vücut kitle indeksin zaten düşük; kilo verme önerilmez — hedef korumaya alındı. Kilo kaybını düşünüyorsan hekim/diyetisyenle görüş.';}
+  if(hedef==='ver'&&window.conditions&&window.conditions.has('yemebozuklugu')){target=tdee;warn='⚠️ Yeme bozukluğu öyküsünde kalori açığı hedeflemiyoruz; hedef korumaya alındı. Kilo hedefini tedavi ekibinle belirle.';}
+  else if(hedef==='ver'&&bmiV<18.5){target=tdee;warn='⚠️ Vücut kitle indeksin zaten düşük; kilo verme önerilmez — hedef korumaya alındı. Kilo kaybını düşünüyorsan hekim/diyetisyenle görüş.';}
   if(target<floor){target=floor;warn=(warn?warn+'<br>':'')+`⚠️ Çok düşük kalorili plan sağlıksız olabilir; güvenli alt sınıra (${floor} kcal) çekildi. Kısıtlı/özel diyet için uzmana danış.`;}
   window.kcalTarget=target;
   const lbl=hedef==='ver'?'kilo vermek (~0.5 kg/hafta)':hedef==='al'?'kilo almak':'kiloyu korumak';
@@ -368,6 +374,7 @@ window.skinGoal=window.skinGoal||'';
 // #18 veri export/import
 {const ex=$('#dataExport');if(ex)ex.onclick=()=>{if(!exportData())toast('Dışa aktarılacak veri bulunamadı.','warn');else toast('Verilerin indirildi.','ok');};}
 {const im=$('#dataImport'),imf=$('#dataImportFile');if(im&&imf){im.onclick=()=>imf.click();imf.onchange=()=>{const f=imf.files&&imf.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{if(importData(String(rd.result))){toast('Verilerin geri yüklendi.','ok');setTimeout(()=>location.reload(),700);}else{toast('Dosya okunamadı ya da geçersiz Besinom yedeği.','warn');}imf.value='';};rd.readAsText(f);};}}
+{const pt=$('#remPrivateToggle');if(pt){let on=false;try{on=localStorage.getItem('besinai_rem_private')==='1';}catch(e){}pt.checked=on;pt.onchange=()=>{try{localStorage.setItem('besinai_rem_private',pt.checked?'1':'0');}catch(e){}if(typeof refreshRemindersIfOn==='function')refreshRemindersIfOn();};}}
 {const ht=$('#healthToggle');if(ht){let on=false;try{on=localStorage.getItem('besinai_health')==='1';}catch(e){}ht.checked=on;ht.onchange=async()=>{try{localStorage.setItem('besinai_health',ht.checked?'1':'0');}catch(e){}if(ht.checked&&typeof syncHealth==='function'){try{await syncHealth();}catch(e){}}};}}
 try{if(localStorage.getItem('besinai_health')==='1'&&typeof syncHealth==='function')syncHealth();}catch(e){}
 // PWA: service worker kaydı (ana ekrana kurulabilirlik + çevrimdışı kabuk)
@@ -463,3 +470,10 @@ function setFontScale(v){applyFontScale(v);try{localStorage.setItem(FS_KEY,v);}c
     el.innerHTML='<div class="qup"><p>⚡ Bu bir <b>hızlı ön analiz</b>. Tahlil değerlerini ve sağlık durumunu eklersen sonuç belirgin doğrulaşır.</p><button type="button" class="btn go" id="qToFull">Daha doğru sonuç için tahlil + durum ekle →</button></div>';
     const b=$('#qToFull');if(b)b.onclick=()=>{try{goto(0);}catch(e){active=0;show();}};}
 })();
+// Erişilebilirlik: statik seçim çipleri (alerji, diyet, durum, ilaç…) klavyeyle odaklanabilsin ve ekran okuyucu seçili olduğunu söylesin.
+// Klavye Enter/Space zaten global keydown ile tıklamaya çevriliyor; burada rol, sekme sırası ve aria-pressed eşitlenir.
+(function(){try{
+  const sync=c=>{c.setAttribute('aria-pressed',c.classList.contains('on')?'true':'false');};
+  document.querySelectorAll('.chips .chip').forEach(c=>{if(!c.hasAttribute('role'))c.setAttribute('role','button');if(!c.hasAttribute('tabindex'))c.setAttribute('tabindex','0');sync(c);});
+  if(typeof MutationObserver!=='undefined')new MutationObserver(ms=>ms.forEach(m=>{const t=m.target;if(t&&t.classList&&t.classList.contains('chip')&&t.getAttribute('role')==='button')sync(t);})).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+}catch(e){}})();

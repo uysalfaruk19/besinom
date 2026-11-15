@@ -2,6 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://yemekhaneci.com.tr; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://yemekhaneci.com.tr; frame-src 'none'"><!-- İçerik güvenlik politikası: ağ isteği yalnız kendi alan adına; enjekte edilen kod veriyi dışarı gönderemez. Satır içi onclick/style kullanıldığı için unsafe-inline şimdilik gerekli. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="color-scheme" content="light"><!-- tutarlı açık tema: dark-mode cihazlarda form/scrollbar oto-karartmasını engelle (tam karanlık tema ayrı bir CSS-değişken pass'i) -->
 <meta name="csrf-token" content="">
@@ -319,11 +320,17 @@
         <div class="chip" data-al="yumurta">Yumurta</div>
         <div class="chip" data-al="sut">Süt ürünleri</div>
         <div class="chip" data-al="balik">Balık</div>
-        <div class="chip" data-al="kabuklu">Kabuklu deniz ürünü</div>
+        <div class="chip" data-al="kabuklu">Kabuklu deniz ürünü (karides/yengeç)</div>
+        <div class="chip" data-al="yumusakca">Yumuşakça (midye/kalamar/ahtapot)</div>
         <div class="chip" data-al="gluten">Gluten</div>
         <div class="chip" data-al="susam">Susam</div>
         <div class="chip" data-al="soya">Soya</div>
+        <div class="chip" data-al="hardal">Hardal</div>
+        <div class="chip" data-al="kereviz">Kereviz</div>
+        <div class="chip" data-al="lupin">Acı bakla (lupin)</div>
+        <div class="chip" data-al="sulfit">Sülfit</div>
       </div>
+      <p class="navnote" style="margin-top:6px">Eleme tarifin malzeme listesine göre yapılır. Paketli ürünlerde (soya sosu, galeta, kuru meyve, hazır sos) her zaman ürün etiketini de kontrol et.</p>
     </div>
     <div class="grp"><h3>🩺 Durumun <span class="unit">(varsa seç — güvenlik-kritik uyarılar analizde en üstte gösterilir)</span></h3>
       <div class="chips" id="conditions">
@@ -351,6 +358,7 @@
         <div class="chip" data-c="migren">Migren</div>
         <div class="chip" data-c="hashimoto">Hipotiroidi / Hashimoto</div>
         <div class="chip" data-c="nafld">Karaciğer Yağlanması</div>
+        <div class="chip" data-c="yemebozuklugu">Yeme bozukluğu öyküsü</div>
       </div>
     </div>
     <div class="grp"><h3>Düzenli kullandığın ilaç <span class="unit">(varsa — bazı ilaçlar emilimi veya düzeyi etkileyebilir)</span></h3>
@@ -428,13 +436,13 @@
       <div id="labsInviteChevron" style="font-size:13px;color:var(--teal);font-weight:700;margin-top:8px">Değerleri gir ▾</div>
     </button>
     <div id="labsBlock" hidden>
-    <div id="ocrCard" style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:14px;padding:14px 16px;margin-bottom:18px">
-      <div style="font-size:13.5px;font-weight:700;color:#0f766e;margin-bottom:4px">📷 Tahlil fotoğrafından otomatik doldur <span style="font-size:10.5px;background:#fde68a;color:#92400e;padding:1px 7px;border-radius:999px;font-weight:800;vertical-align:middle">BETA</span></div>
-      <div style="font-size:12.5px;color:#475569;margin-bottom:10px">Tahlil sonucunun net bir fotoğrafını/ekran görüntüsünü seç; değerleri okuyup buraya taşıyalım. <b>Görselin cihazından çıkmaz.</b> İlk kullanımda internet + birkaç saniye gerekir; <b>çalışmazsa değerleri aşağıdan elle girebilirsin.</b> OCR hatalı okuyabilir — aktarmadan önce her değeri kontrol et.</div>
-      <input type="file" id="ocrFile" accept="image/*" style="display:none">
-      <button type="button" class="btn go" id="ocrBtn" style="padding:9px 15px;font-size:13.5px">📷 Fotoğraf seç</button>
-      <span id="ocrStatus" class="navnote" style="margin-left:8px"></span>
-      <div id="ocrReview" style="margin-top:12px"></div>
+    <div id="labPasteCard" style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:14px;padding:14px 16px;margin-bottom:18px">
+      <div style="font-size:13.5px;font-weight:700;color:#0f766e;margin-bottom:4px">📋 Tahlil sonucunu yapıştırarak doldur</div>
+      <div style="font-size:12.5px;color:#475569;margin-bottom:10px">e-Nabız ya da laboratuvar PDF'indeki sonuç satırlarını kopyalayıp buraya yapıştır; değerleri aşağıdaki kutulara taşıyalım. <b>Metin cihazından çıkmaz.</b> Taşınan değerleri mutlaka kontrol et.</div>
+      <label for="labPaste" class="sr-only">Tahlil sonucu metni</label>
+      <textarea id="labPaste" rows="4" style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;font-size:13.5px" placeholder="Örn: Ferritin 12 ng/mL&#10;Vitamin B12 210 pg/mL&#10;25-OH Vitamin D 14,5 ng/mL"></textarea>
+      <button type="button" class="btn go" id="labPasteGo" style="padding:9px 15px;font-size:13.5px;margin-top:8px">Değerleri doldur</button>
+      <div id="labPasteMsg" class="navnote" role="status" aria-live="polite" style="margin-top:8px"></div>
     </div>
     <div class="row" id="labs"></div>
     <details id="labsIleriWrap" style="margin-top:6px"><summary style="cursor:pointer;padding:10px 2px;font-weight:800;font-size:12px;letter-spacing:.05em;color:#0e7490" aria-label="Daha fazla tahlil değeri — ileri ve ek parametreler, varsa gir">🔬 DAHA FAZLA TAHLİL DEĞERİ</summary><div class="row" id="labs-ileri" style="margin-top:10px"></div></details>
@@ -576,6 +584,7 @@
       <div style="padding-bottom:10px;display:flex;flex-direction:column;gap:4px">
       <label class="storage-choice"><input type="checkbox" id="deviceSave"><span><b>Profilimi bu cihazda sakla</b><small>Varsayılan olarak hiçbir profil veya takip verisi kalıcı saklanmaz. Ortak cihazlarda işaretleme.</small></span></label>
       <label class="storage-choice"><input type="checkbox" id="reminderToggle"><span><b>Su &amp; öğün hatırlatıcıları</b><small>Gün içi su serisi + öğün vakitlerinde menündeki gerçek yemek adlarıyla bildirim. Besinom uygulamasında çalışır; bildirimler cihazında üretilir, veri dışarı çıkmaz.</small></span></label>
+      <label class="storage-choice"><input type="checkbox" id="remPrivateToggle"><span><b>Bildirimde yemek adını gösterme</b><small>Kilit ekranında yalnız "Öğle yemeği vakti" gibi genel bir metin görünür; menün başkalarına görünmez.</small></span></label>
       <div id="reminderTimes" style="display:none;margin:2px 0 10px 4px;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px;color:#475569"></div>
       <div class="storage-choice" style="gap:8px;flex-wrap:wrap"><span style="flex:1 1 100%"><b>Verilerim (taşınabilirlik)</b><small>Tüm verini tek dosyada indir, başka cihaza/sürüme geri yükle. Veri yine yalnız senin cihazında.</small></span><button type="button" class="btn ghost" id="dataExport" style="font-size:12.5px;padding:6px 12px">⬇️ Verilerimi indir</button><button type="button" class="btn ghost" id="dataImport" style="font-size:12.5px;padding:6px 12px">⬆️ Geri yükle</button><input type="file" id="dataImportFile" accept="application/json,.json" style="display:none"></div>
       <label class="storage-choice" style="display:none" data-v1-kapali="capacitor-health eklenince ac"><input type="checkbox" id="healthToggle"><span><b>Apple Sağlık / Health Connect'ten veri al</b><small>İzin verirsen kilo, adım ve aktif kaloriyi cihazdan okuyup takibine ekler (iOS/Android uygulamasında çalışır; veri sunucuya gönderilmez).</small></span></label>

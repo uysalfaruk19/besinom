@@ -35,6 +35,10 @@
       }
       // Capacitor'da uzak sayfadayken (tencere/takviye) app-içi sekme: uzak /besinai'ye GİTME — gömülü app'e geri dön
       else if(appTab&&window.Capacitor&&!isApp){e.preventDefault();try{history.back();}catch(err){}}
+      // Besinler/Takviye sitedeki sayfalardır: çevrimdışıyken boş sayfa yerine açıklama göster
+      else if(!appTab&&navigator.onLine===false){e.preventDefault();
+        var msg='Bu bölüm internet bağlantısı gerektiriyor. Analiz, menü ve takip çevrimdışı çalışmaya devam eder.';
+        if(typeof window.toast==='function')window.toast(msg,'warn');else alert(msg);}
       // app dışı sayfada app-içi sekme: normal link (/besinai#go=…) → app okur
       // tencere/takviye sekmeleri: her zaman normal link (route'a gider)
     });

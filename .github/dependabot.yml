@@ -1,0 +1,14 @@
+# Bağımlılık güncellemeleri: Capacitor paketleri ve GitHub Actions için haftalık PR açar.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      capacitor:
+        patterns: ["@capacitor/*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
